@@ -8,8 +8,7 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.security.web.authentication.SimpleUrlAuthenticationFailureHandler;
-import service.calorie.service.ApiUrlAuthenticationSuccessHandler;
+import org.springframework.security.web.authentication.logout.HttpStatusReturningLogoutSuccessHandler;
 import service.calorie.service.ApiUserDetailsService;
 import service.calorie.service.RestAuthenticationEntryPoint;
 import service.calorie.util.Constants;
@@ -26,15 +25,13 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
     private final DataSource dataSource;
     private final ApiUserDetailsService service;
-    private final ApiUrlAuthenticationSuccessHandler successHandler;
     private final RestAuthenticationEntryPoint entryPoint;
 
     @Autowired
-    public SecurityConfig(DataSource dataSource, ApiUserDetailsService service
-            , ApiUrlAuthenticationSuccessHandler successHandler, RestAuthenticationEntryPoint entryPoint) {
+    public SecurityConfig(DataSource dataSource, ApiUserDetailsService service,
+                          RestAuthenticationEntryPoint entryPoint) {
         this.dataSource = dataSource;
         this.service = service;
-        this.successHandler = successHandler;
         this.entryPoint = entryPoint;
     }
 
@@ -55,18 +52,14 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     @Override
     protected void configure(HttpSecurity http) throws Exception {
         http.csrf().disable().
-                // Custom handling on authentication failures
-                exceptionHandling().authenticationEntryPoint(entryPoint).
+                exceptionHandling().authenticationEntryPoint(entryPoint). // Custom handling on authentication failures
                 and().
-                // Authorization
-                authorizeRequests().
+                authorizeRequests(). // Authorization
                 antMatchers(Constants.API_V1_URL + "/test").authenticated().
                 and().
-                formLogin().
-                successHandler(successHandler).
-                failureHandler(new SimpleUrlAuthenticationFailureHandler()).
-                and().
-                logout();
+                logout().permitAll().
+                logoutSuccessHandler(((request, response, authentication) ->
+                        new HttpStatusReturningLogoutSuccessHandler()));
     }
 
     @Bean
