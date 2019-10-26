@@ -1,0 +1,15 @@
+package service.calorie.repositories;
+
+import org.springframework.data.repository.PagingAndSortingRepository;
+import org.springframework.stereotype.Repository;
+import service.calorie.entities.User;
+
+/**
+ * Created By: Prashant Chaubey
+ * Created On: 26-10-2019 01:50
+ * Purpose: TODO:
+ **/
+@Repository
+public interface UserRepository extends PagingAndSortingRepository<User, Long> {
+    User findUserByUsername(String username);
+}
