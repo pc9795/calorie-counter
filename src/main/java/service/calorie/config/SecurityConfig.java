@@ -55,7 +55,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 exceptionHandling().authenticationEntryPoint(entryPoint). // Custom handling on authentication failures
                 and().
                 authorizeRequests(). // Authorization
-                antMatchers(Constants.API_V1_URL + "/test").authenticated().
+                antMatchers(Constants.API_V1_URL).authenticated().
                 and().
                 logout().permitAll().
                 logoutSuccessHandler(((request, response, authentication) ->
