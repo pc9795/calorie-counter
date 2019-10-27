@@ -28,4 +28,5 @@ public final class Constants {
         public static final String MEAL = PREFIX + "/meals";
     }
 
+    public static int DEFAULT_PAGE_SIZE = 10;
 }

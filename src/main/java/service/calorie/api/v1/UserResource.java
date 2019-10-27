@@ -1,6 +1,8 @@
 package service.calorie.api.v1;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.web.bind.annotation.*;
 import service.calorie.beans.ApiUserPrincipal;
 import service.calorie.entities.User;
@@ -29,9 +31,9 @@ public class UserResource {
     }
 
     @GetMapping
-    public List<User> getUsers() {
+    public List<User> getUsers(Pageable pageable) {
         // todo user manager is indirectly accessing meals.
-        return userRepository.findAll();
+        return userRepository.findAll(pageable).getContent();
     }
 
     @GetMapping("/{user_id}")
@@ -50,6 +52,8 @@ public class UserResource {
         if (!principal.getUser().isAdmin() && user.isAdmin()) {
             throw new InvalidDataException("Non admin user can't add an admin user");
         }
+        //todo what happens when calories are zero. Does api fetch logic work here.
+        //todo expected calories logic.
         return userRepository.save(user);
     }
 
@@ -72,6 +76,7 @@ public class UserResource {
         //todo user manager has access to meals.
         //todo check orphans are deleted or not.
         //todo what happens when calories are zero. Does api fetch logic work here.
+        //todo expected calories logic.
         dbUser.setMeals(user.getMeals());
         return userRepository.save(dbUser);
     }

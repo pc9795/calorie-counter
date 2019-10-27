@@ -1,5 +1,7 @@
 package service.calorie.repositories;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.repository.PagingAndSortingRepository;
 import service.calorie.entities.Meal;
 import service.calorie.entities.User;
@@ -14,7 +16,7 @@ import java.util.List;
 public interface MealRepository extends PagingAndSortingRepository<Meal, Long> {
     List<Meal> findAll();
 
-    List<Meal> findAllByUser(User user);
+    Page<Meal> findAllByUser(User user, Pageable pageable);
 
     Meal findById(long id);
 }

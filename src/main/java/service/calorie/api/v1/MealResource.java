@@ -1,6 +1,7 @@
 package service.calorie.api.v1;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Pageable;
 import org.springframework.web.bind.annotation.*;
 import service.calorie.beans.ApiUserPrincipal;
 import service.calorie.entities.Meal;
@@ -36,11 +37,11 @@ public class MealResource {
     }
 
     @GetMapping
-    public List<Meal> getMeals(ApiUserPrincipal principal) {
+    public List<Meal> getMeals(ApiUserPrincipal principal, Pageable pageable) {
         if (principal.getUser().isAdmin()) {
-            return mealRepository.findAll();
+            return mealRepository.findAll(pageable).getContent();
         }
-        return mealRepository.findAllByUser(principal.getUser());
+        return mealRepository.findAllByUser(principal.getUser(), pageable).getContent();
     }
 
     @GetMapping("/{meal_id}")

@@ -37,6 +37,8 @@ public class User {
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Meal> meals = new ArrayList<>();
 
+    private UserSetting userSetting;
+
     public User() {
     }
 
@@ -98,6 +100,14 @@ public class User {
     public void addMeal(Meal meal) {
         this.meals.add(meal);
         meal.setUser(this);
+    }
+
+    public UserSetting getUserSetting() {
+        return userSetting;
+    }
+
+    public void setUserSetting(UserSetting userSetting) {
+        this.userSetting = userSetting;
     }
 
     public boolean isAdmin() {
