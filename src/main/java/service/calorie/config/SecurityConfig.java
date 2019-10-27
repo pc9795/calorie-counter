@@ -9,6 +9,7 @@ import org.springframework.security.config.annotation.web.configuration.WebSecur
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.authentication.logout.HttpStatusReturningLogoutSuccessHandler;
+import service.calorie.entities.UserRole;
 import service.calorie.service.ApiUserDetailsService;
 import service.calorie.service.RestAuthenticationEntryPoint;
 import service.calorie.util.Constants;
@@ -55,7 +56,10 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 exceptionHandling().authenticationEntryPoint(entryPoint). // Custom handling on authentication failures
                 and().
                 authorizeRequests(). // Authorization
-                antMatchers(Constants.API_V1_URL).authenticated().
+                antMatchers(Constants.ApiV1Resource.MEAL).
+                hasAnyRole("ROLE_" + UserRole.UserRoleType.ADMIN, "ROLE_" + UserRole.UserRoleType.REGULAR).
+                antMatchers(Constants.ApiV1Resource.USER).
+                hasAnyRole("ROLE_" + UserRole.UserRoleType.ADMIN + "ROLE_" + UserRole.UserRoleType.USER_MANAGER).
                 and().
                 logout().permitAll().
                 logoutSuccessHandler(((request, response, authentication) ->

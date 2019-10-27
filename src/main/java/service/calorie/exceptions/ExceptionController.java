@@ -2,7 +2,6 @@ package service.calorie.exceptions;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
-import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
@@ -11,6 +10,7 @@ import service.calorie.util.Constants;
 import service.calorie.util.Utils;
 
 import javax.servlet.http.HttpServletResponse;
+import javax.validation.ValidationException;
 import java.io.IOException;
 
 /**
@@ -23,8 +23,8 @@ public class ExceptionController {
 
     @ExceptionHandler(NoHandlerFoundException.class)
     public void handle404(HttpServletResponse response) throws IOException {
-        createJSONErrorResponse(HttpServletResponse.SC_NOT_FOUND, Constants.ErrorMsg.RESOURCE_NOT_FOUND,
-                response);
+        createJSONErrorResponse(HttpServletResponse.SC_NOT_FOUND,
+                Constants.ErrorMsg.RESOURCE_NOT_FOUND, response);
     }
 
     @ExceptionHandler(UserAlreadyExistException.class)
@@ -33,12 +33,28 @@ public class ExceptionController {
                 Constants.ErrorMsg.USER_ALREADY_EXISTS, response);
     }
 
+    @ExceptionHandler({InvalidDataException.class, ValidationException.class})
+    public void handleInvalidDataException(Exception exc, HttpServletResponse response) throws IOException {
+        createJSONErrorResponse(HttpServletResponse.SC_BAD_REQUEST,
+                exc.getMessage(), response);
+    }
+
+    @ExceptionHandler(ResourceNotExistException.class)
+    public void handleUserNotExistException(HttpServletResponse response) throws IOException {
+        createJSONErrorResponse(HttpServletResponse.SC_BAD_REQUEST,
+                Constants.ErrorMsg.RESOURCE_NOT_EXIST, response);
+    }
+
     @ExceptionHandler
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public void handle400(Exception exc, HttpServletResponse response) throws IOException {
-        createJSONErrorResponse(HttpServletResponse.SC_BAD_REQUEST, exc.getMessage(), response);
+        createJSONErrorResponse(HttpServletResponse.SC_BAD_REQUEST,
+                exc.getMessage(), response);
     }
 
+    public void handleForbiddenResourceException(HttpServletResponse response) throws IOException {
+        createJSONErrorResponse(HttpServletResponse.SC_FORBIDDEN, Constants.ErrorMsg.FORBIDDEN_RESOURCE, response);
+    }
 
     private static void createJSONErrorResponse(int errorCode, String errorMessage, HttpServletResponse response)
             throws IOException {

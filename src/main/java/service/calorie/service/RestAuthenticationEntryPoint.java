@@ -4,6 +4,7 @@ import org.springframework.http.MediaType;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.stereotype.Component;
+import service.calorie.util.Constants;
 import service.calorie.util.Utils;
 
 import javax.servlet.ServletException;
@@ -33,6 +34,6 @@ public class RestAuthenticationEntryPoint implements AuthenticationEntryPoint {
         httpServletResponse.setContentType(MediaType.APPLICATION_JSON_UTF8_VALUE);
         httpServletResponse.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
         httpServletResponse.getWriter().write(Utils.createErrorJSON(HttpServletResponse.SC_UNAUTHORIZED,
-                "Unauthorized"));
+                Constants.ErrorMsg.UNAUTHORIZED));
     }
 }

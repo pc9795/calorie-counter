@@ -7,8 +7,6 @@ import org.hibernate.validator.constraints.Length;
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
 
 /**
@@ -31,9 +29,13 @@ public class User {
     @Length(min = 8)
     private String password;
 
+    // CascadeType.All so that the persistence of parent can do so for children.
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     @NotNull
     private List<UserRole> roles = new ArrayList<>();
+
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Meal> meals = new ArrayList<>();
 
     public User() {
     }
@@ -43,12 +45,10 @@ public class User {
         this.password = password;
     }
 
-    @JsonProperty
     public long getId() {
         return id;
     }
 
-    @JsonIgnore
     public void setId(long id) {
         this.id = id;
     }
@@ -77,9 +77,35 @@ public class User {
 
     public void setRoles(List<UserRole> roles) {
         this.roles = roles;
-        // Setting the both side of the relationship.
+        // Setting both sides of the relationship.
         for (UserRole role : roles) {
             role.setUser(this);
         }
+    }
+
+    public List<Meal> getMeals() {
+        return meals;
+    }
+
+    public void setMeals(List<Meal> meals) {
+        this.meals = meals;
+        // Setting both sides of the relationship.
+        for (Meal meal : meals) {
+            meal.setUser(this);
+        }
+    }
+
+    public void addMeal(Meal meal) {
+        this.meals.add(meal);
+        meal.setUser(this);
+    }
+
+    public boolean isAdmin() {
+        for (UserRole role : roles) {
+            if (role.getType().equals(UserRole.UserRoleType.ADMIN)) {
+                return true;
+            }
+        }
+        return false;
     }
 }

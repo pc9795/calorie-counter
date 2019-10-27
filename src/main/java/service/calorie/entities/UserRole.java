@@ -19,7 +19,6 @@ public class UserRole {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
-    @JsonIgnore
     private long id;
 
     @Enumerated(EnumType.STRING)
