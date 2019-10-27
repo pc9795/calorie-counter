@@ -79,6 +79,15 @@ public class MealResource {
             meal.setCalories(nutritionixService.fetchCaloriesFromText(meal.getText()));
         }
         principal.getUser().addMeal(meal);
+        long sum = mealRepository.sumOfMealsForUser(principal.getUser().getId());
+        int caloriePerDay = principal.getUser().getUserSetting().getExpectedNoOfCaloriesPerDay();
+        if (sum > caloriePerDay) {
+            userRepository.save(principal.getUser());
+            return meal;
+        }
+        if (sum + meal.getCalories() > principal.getUser().getUserSetting().getExpectedNoOfCaloriesPerDay()) {
+            mealRepository.updateLessThanExpected(principal.getUser().getId(), false);
+        }
         userRepository.save(principal.getUser());
         return meal;
     }
@@ -103,6 +112,15 @@ public class MealResource {
         dbMeal.setTime(meal.getTime());
         dbMeal.setLessThanExpected(meal.isLessThanExpected());
         dbMeal.setText(meal.getText());
+        principal.getUser().addMeal(meal);
+        long sum = mealRepository.sumOfMealsForUser(principal.getUser().getId());
+        int caloriePerDay = principal.getUser().getUserSetting().getExpectedNoOfCaloriesPerDay();
+        if (sum > caloriePerDay) {
+            return mealRepository.save(dbMeal);
+        }
+        if (sum + meal.getCalories() > principal.getUser().getUserSetting().getExpectedNoOfCaloriesPerDay()) {
+            mealRepository.updateLessThanExpected(principal.getUser().getId(), false);
+        }
         return mealRepository.save(dbMeal);
     }
 
@@ -115,6 +133,16 @@ public class MealResource {
         }
         if (meal.getUser().getId() != principal.getUser().getId()) {
             throw new ForbiddenResourceException();
+        }
+
+        long sum = mealRepository.sumOfMealsForUser(principal.getUser().getId());
+        int caloriePerDay = principal.getUser().getUserSetting().getExpectedNoOfCaloriesPerDay();
+        if (sum < caloriePerDay) {
+            mealRepository.delete(meal);
+            return;
+        }
+        if (sum - meal.getCalories() <= principal.getUser().getUserSetting().getExpectedNoOfCaloriesPerDay()) {
+            mealRepository.updateLessThanExpected(principal.getUser().getId(), true);
         }
         mealRepository.delete(meal);
     }
