@@ -2,13 +2,16 @@ package service.calorie.api.v1;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.web.bind.annotation.*;
 import service.calorie.beans.ApiUserPrincipal;
 import service.calorie.entities.User;
 import service.calorie.exceptions.InvalidDataException;
+import service.calorie.exceptions.InvalidSearchQueryException;
 import service.calorie.exceptions.ResourceNotExistException;
 import service.calorie.repositories.UserRepository;
 import service.calorie.util.Constants;
+import service.calorie.util.SpecificationUtils;
 
 import javax.validation.Valid;
 import java.util.List;
@@ -30,9 +33,20 @@ public class UserResource {
     }
 
     @GetMapping
-    public List<User> getUsers(Pageable pageable) {
-        // todo user manager is indirectly accessing meals.
-        return userRepository.findAll(pageable).getContent();
+    public List<User> getUsers(Pageable pageable, @RequestParam(value = "search", required = false) String search)
+            throws InvalidDataException {
+        if (search == null) {
+            // todo user manager is indirectly accessing meals.
+            return userRepository.findAll(pageable).getContent();
+        }
+        try {
+            Specification<User> spec = SpecificationUtils.getSpecFromQuery(search);
+            return userRepository.findAll(spec, pageable).getContent();
+
+        } catch (InvalidSearchQueryException e) {
+            throw new InvalidDataException(String.format("Invalid search query: %s", search));
+        }
+
     }
 
     @GetMapping("/{user_id}")

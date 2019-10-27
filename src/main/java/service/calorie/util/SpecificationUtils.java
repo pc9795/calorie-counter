@@ -1,10 +1,11 @@
 package service.calorie.util;
 
+import org.springframework.data.jpa.domain.Specification;
 import service.calorie.exceptions.InvalidSearchQueryException;
 
 import java.util.ArrayDeque;
+import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.LinkedList;
 import java.util.List;
 
 /**
@@ -13,12 +14,31 @@ import java.util.List;
  * Purpose: TODO:
  **/
 public class SpecificationUtils {
-    private static List<String> operators = Arrays.asList("ge", "gt", "le", "lt", "eq", "and", "or", "(", ")");
+    private static List<String> operators = Arrays.asList("gt", "ge", "lt", "le", "eq", "and", "or", "(", ")");
 
+    static SearchOption searchOptionFromStr(String optionStr) throws InvalidSearchQueryException {
+        switch (optionStr) {
+            case "eq":
+                return SearchOption.EQUALS;
+            case "gt":
+                return SearchOption.GREATER_THAN;
+            case "ge":
+                return SearchOption.GREATER_THAN_OR_EQUAL_TO;
+            case "lt":
+                return SearchOption.LESS_THAN;
+            case "le":
+                return SearchOption.LESS_THAN_OR_EQUAL_TO;
+            case "and":
+                return SearchOption.AND;
+            case "or":
+                return SearchOption.OR;
+        }
+        throw new InvalidSearchQueryException(String.format("Not a valid search option %s", optionStr));
+    }
 
-    public static List<String> infixToPostFix(String query) throws InvalidSearchQueryException {
+    private static List<String> infixToPostFix(String query) throws InvalidSearchQueryException {
         SearchQueryTokenizer tokenizer = new SearchQueryTokenizer(query.toLowerCase());
-        List<String> result = new LinkedList<>();
+        List<String> result = new ArrayList<>();
         ArrayDeque<String> stack = new ArrayDeque<>();
         String token = tokenizer.nextToken();
 
@@ -53,13 +73,36 @@ public class SpecificationUtils {
         return result;
     }
 
-    public static ApiSpecification buildSpecFromPostfixList(List<String> postfix) throws InvalidSearchQueryException {
-        ApiSpecification spec = null;
-        ArrayDeque<ApiSpecification> stack = new ArrayDeque<>();
+    private static <T> Specification<T> buildSpecFromPostfixList(List<String> postfix) throws InvalidSearchQueryException {
+        ArrayDeque<Specification<T>> stack = new ArrayDeque<>();
+        int size = postfix.size();
 
-        for (String token : postfix) {
+        for (int i = 0; i < size; i++) {
+            if (!isOperator(postfix.get(i))) {
+                if (size - i < 3) {
+                    throw new InvalidSearchQueryException();
+                }
+                stack.push(new ApiSpecification<>(
+                        new SearchCriteria(postfix.get(i), postfix.get(i + 1), postfix.get(i + 2))));
+                i += 2;
+            } else {
+                SearchOption option = searchOptionFromStr(postfix.get(i));
+                if (option != SearchOption.AND && option != SearchOption.OR) {
+                    throw new InvalidSearchQueryException();
+                }
+                if (stack.size() < 2) {
+                    throw new InvalidSearchQueryException();
+                }
+                Specification<T> first = stack.pop();
+                Specification<T> second = stack.pop();
+                if (option == SearchOption.OR) {
+                    stack.push(first.and(second));
+                } else {
+                    stack.push(first.or(second));
+                }
+            }
         }
-        return spec;
+        return stack.peek();
 
     }
 
@@ -67,31 +110,30 @@ public class SpecificationUtils {
         return operators.contains(op);
     }
 
-    private static boolean isAndOperator(String op) {
-        return op.equals("and");
-    }
-
-    private static boolean isOrOperator(String op) {
-        return op.equals("or");
-    }
-
     private static int precedence(String op) throws InvalidSearchQueryException {
-        switch (op) {
-            case "ge":
-            case "gt":
-            case "le":
-            case "lt":
+        if (op.equals("(")) {
+            return 0;
+        }
+        SearchOption searchOption = searchOptionFromStr(op);
+        switch (searchOption) {
+            case GREATER_THAN:
+            case GREATER_THAN_OR_EQUAL_TO:
+            case LESS_THAN:
+            case LESS_THAN_OR_EQUAL_TO:
                 return 4;
-            case "eq":
+            case EQUALS:
                 return 3;
-            case "and":
+            case AND:
                 return 2;
-            case "or":
+            case OR:
                 return 1;
-            case "(":
-                return 0;
         }
         throw new InvalidSearchQueryException(String.format("Can't get precedence of: %s", op));
+    }
+
+    public static <T> Specification<T> getSpecFromQuery(String query) throws InvalidSearchQueryException {
+        List<String> postFixedQuery = infixToPostFix(query);
+        return buildSpecFromPostfixList(postFixedQuery);
     }
 
     private static class SearchQueryTokenizer {
@@ -126,14 +168,6 @@ public class SpecificationUtils {
                 }
             }
             return null;
-        }
-    }
-
-    public static void main(String[] args) {
-        try {
-            System.out.println(SpecificationUtils.infixToPostFix("(date eq '2016-05-01') AND ((number_of_calories gt 20) OR (number_of_calories lt 10))"));
-        } catch (InvalidSearchQueryException e) {
-            e.printStackTrace();
         }
     }
 }

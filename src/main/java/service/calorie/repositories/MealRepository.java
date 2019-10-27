@@ -2,6 +2,7 @@ package service.calorie.repositories;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.data.repository.PagingAndSortingRepository;
 import service.calorie.entities.Meal;
 import service.calorie.entities.User;
@@ -19,4 +20,6 @@ public interface MealRepository extends PagingAndSortingRepository<Meal, Long> {
     Page<Meal> findAllByUser(User user, Pageable pageable);
 
     Meal findById(long id);
+
+    Page<Meal> findAll(Specification specification, Pageable pageable);
 }

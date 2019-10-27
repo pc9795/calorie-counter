@@ -2,7 +2,10 @@ package service.calorie.util;
 
 import org.springframework.data.jpa.domain.Specification;
 
-import javax.persistence.criteria.*;
+import javax.persistence.criteria.CriteriaBuilder;
+import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.Predicate;
+import javax.persistence.criteria.Root;
 
 /**
  * Created By: Prashant Chaubey
@@ -19,23 +22,23 @@ public class ApiSpecification<T> implements Specification<T> {
     @Override
     public Predicate toPredicate(Root<T> root, CriteriaQuery<?> query, CriteriaBuilder criteriaBuilder) {
         switch (searchCriteria.getOperation()) {
-            case "eq":
+            case EQUALS:
                 return criteriaBuilder.equal(
                         root.get(searchCriteria.getKey()), searchCriteria.getValue().toString()
                 );
-            case "ge":
+            case GREATER_THAN_OR_EQUAL_TO:
                 return criteriaBuilder.greaterThanOrEqualTo(
                         root.get(searchCriteria.getKey()), searchCriteria.getValue().toString()
                 );
-            case "gt":
+            case GREATER_THAN:
                 return criteriaBuilder.greaterThan(
                         root.get(searchCriteria.getKey()), searchCriteria.getValue().toString()
                 );
-            case "le":
+            case LESS_THAN_OR_EQUAL_TO:
                 return criteriaBuilder.lessThanOrEqualTo(
                         root.get(searchCriteria.getKey()), searchCriteria.getValue().toString()
                 );
-            case "lt":
+            case LESS_THAN:
                 return criteriaBuilder.lessThan(
                         root.get(searchCriteria.getKey()), searchCriteria.getValue().toString()
                 );

@@ -1,5 +1,7 @@
 package service.calorie.util;
 
+import service.calorie.exceptions.InvalidSearchQueryException;
+
 /**
  * Created By: Prashant Chaubey
  * Created On: 27-10-2019 15:59
@@ -7,15 +9,15 @@ package service.calorie.util;
  **/
 public class SearchCriteria {
     private String key;
-    private String operation;
+    private SearchOption operation;
     private Object value;
 
     public SearchCriteria() {
     }
 
-    public SearchCriteria(String key, String operation, Object value) {
+    public SearchCriteria(String key, Object value, String operation) throws InvalidSearchQueryException {
         this.key = key;
-        this.operation = operation;
+        this.operation = SpecificationUtils.searchOptionFromStr(operation);
         this.value = value;
     }
 
@@ -27,11 +29,11 @@ public class SearchCriteria {
         this.key = key;
     }
 
-    public String getOperation() {
+    public SearchOption getOperation() {
         return operation;
     }
 
-    public void setOperation(String operation) {
+    public void setOperation(SearchOption operation) {
         this.operation = operation;
     }
 
