@@ -42,7 +42,7 @@ public class ExceptionController {
     @ExceptionHandler(ResourceNotExistException.class)
     public void handleUserNotExistException(HttpServletResponse response) throws IOException {
         createJSONErrorResponse(HttpServletResponse.SC_BAD_REQUEST,
-                Constants.ErrorMsg.RESOURCE_NOT_EXIST, response);
+                Constants.ErrorMsg.RESOURCE_NOT_FOUND, response);
     }
 
     @ExceptionHandler
@@ -52,6 +52,7 @@ public class ExceptionController {
                 exc.getMessage(), response);
     }
 
+    @ExceptionHandler(ForbiddenResourceException.class)
     public void handleForbiddenResourceException(HttpServletResponse response) throws IOException {
         createJSONErrorResponse(HttpServletResponse.SC_FORBIDDEN, Constants.ErrorMsg.FORBIDDEN_RESOURCE, response);
     }

@@ -1,7 +1,6 @@
 package service.calorie.entities;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.fasterxml.jackson.datatype.jsr310.deser.LocalDateDeserializer;
@@ -20,7 +19,7 @@ import java.time.LocalTime;
 /**
  * Created By: Prashant Chaubey
  * Created On: 25-10-2019 18:06
- * Purpose: TODO:
+ * Purpose: Meal entity. Records of meal taken by a user.
  **/
 @Entity(name = "meal_records")
 public class Meal {
@@ -38,6 +37,7 @@ public class Meal {
     @NotNull
     private LocalTime time;
 
+    // We are using Lob so that there is not a limit of 255 characters.
     @Lob
     @Type(type = "org.hibernate.type.TextType")
     @NotNull
@@ -45,8 +45,10 @@ public class Meal {
 
     @PositiveOrZero
     private int calories;
+
     private boolean lessThanExpected;
 
+    @JsonIgnore
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
     private User user;
@@ -99,13 +101,48 @@ public class Meal {
         this.lessThanExpected = lessThanExpected;
     }
 
-    @JsonIgnore
     public User getUser() {
         return user;
     }
 
-    @JsonProperty
     public void setUser(User user) {
         this.user = user;
+    }
+
+    @Override
+    public String toString() {
+        return "Meal{" +
+                "id=" + id +
+                ", date=" + date +
+                ", time=" + time +
+                ", text='" + text + '\'' +
+                ", calories=" + calories +
+                ", lessThanExpected=" + lessThanExpected +
+                ", user=" + (user == null ? null : user.getId()) +
+                '}';
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        Meal meal = (Meal) o;
+
+        if (calories != meal.calories) return false;
+        if (lessThanExpected != meal.lessThanExpected) return false;
+        if (!date.equals(meal.date)) return false;
+        if (!time.equals(meal.time)) return false;
+        return text.equals(meal.text);
+    }
+
+    @Override
+    public int hashCode() {
+        int result = date.hashCode();
+        result = 31 * result + time.hashCode();
+        result = 31 * result + text.hashCode();
+        result = 31 * result + calories;
+        result = 31 * result + (lessThanExpected ? 1 : 0);
+        return result;
     }
 }

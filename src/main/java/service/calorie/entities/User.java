@@ -12,7 +12,7 @@ import java.util.List;
 /**
  * Created By: Prashant Chaubey
  * Created On: 25-10-2019 18:02
- * Purpose: TODO:
+ * Purpose: User entity
  **/
 @Entity(name = "users")
 public class User {
@@ -29,15 +29,17 @@ public class User {
     @Length(min = 8)
     private String password;
 
-    // CascadeType.All so that the persistence of parent can do so for children.
-    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
-    @NotNull
+    @ElementCollection
+    @CollectionTable(name = "user_roles", joinColumns = @JoinColumn(name = "user_id"))
     private List<UserRole> roles = new ArrayList<>();
 
+    // Meal is a week entity so enabling orphan removal.
+    // CascadeType.All so that the persistence of parent can do so for children.
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Meal> meals = new ArrayList<>();
 
-    private UserSetting userSetting;
+    @Embedded
+    private UserSettings userSettings;
 
     public User() {
     }
@@ -79,16 +81,14 @@ public class User {
 
     public void setRoles(List<UserRole> roles) {
         this.roles = roles;
-        // Setting both sides of the relationship.
-        for (UserRole role : roles) {
-            role.setUser(this);
-        }
     }
 
+    @JsonProperty
     public List<Meal> getMeals() {
         return meals;
     }
 
+    @JsonIgnore
     public void setMeals(List<Meal> meals) {
         this.meals = meals;
         // Setting both sides of the relationship.
@@ -98,16 +98,17 @@ public class User {
     }
 
     public void addMeal(Meal meal) {
+        // Setting both sides of the relationship.
         this.meals.add(meal);
         meal.setUser(this);
     }
 
-    public UserSetting getUserSetting() {
-        return userSetting;
+    public UserSettings getUserSettings() {
+        return userSettings;
     }
 
-    public void setUserSetting(UserSetting userSetting) {
-        this.userSetting = userSetting;
+    public void setUserSettings(UserSettings userSettings) {
+        this.userSettings = userSettings;
     }
 
     public boolean isAdmin() {

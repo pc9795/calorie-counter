@@ -11,7 +11,6 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.authentication.logout.HttpStatusReturningLogoutSuccessHandler;
 import service.calorie.entities.UserRole;
 import service.calorie.service.ApiUserDetailsService;
-import service.calorie.service.RestAuthenticationEntryPoint;
 import service.calorie.util.Constants;
 
 import javax.sql.DataSource;

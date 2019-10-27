@@ -12,7 +12,8 @@ import service.calorie.repositories.UserRepository;
 /**
  * Created By: Prashant Chaubey
  * Created On: 26-10-2019 01:57
- * Purpose: TODO:
+ * Purpose: Implementation of UserDetailsService for this project. Provide interface to load a user from the database
+ * by username.
  **/
 @Service
 public class ApiUserDetailsService implements UserDetailsService {

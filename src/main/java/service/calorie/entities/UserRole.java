@@ -1,33 +1,24 @@
 package service.calorie.entities;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonProperty;
-
-import javax.persistence.*;
+import javax.persistence.Embeddable;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 import javax.validation.constraints.NotNull;
 
 /**
  * Created By: Prashant Chaubey
  * Created On: 26-10-2019 01:43
- * Purpose: TODO:
+ * Purpose: Roles of a user.
  **/
-@Entity(name = "user_roles")
+@Embeddable
 public class UserRole {
     public enum UserRoleType {
         REGULAR, ADMIN, USER_MANAGER
     }
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
-    private long id;
-
     @Enumerated(EnumType.STRING)
     @NotNull
     private UserRole.UserRoleType type;
-
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id")
-    private User user;
 
     public UserRole() {
     }
@@ -36,13 +27,6 @@ public class UserRole {
         this.type = type;
     }
 
-    public long getId() {
-        return id;
-    }
-
-    public void setId(long id) {
-        this.id = id;
-    }
 
     public UserRoleType getType() {
         return type;
@@ -50,15 +34,5 @@ public class UserRole {
 
     public void setType(UserRoleType type) {
         this.type = type;
-    }
-
-    @JsonIgnore
-    public User getUser() {
-        return user;
-    }
-
-    @JsonProperty
-    public void setUser(User user) {
-        this.user = user;
     }
 }

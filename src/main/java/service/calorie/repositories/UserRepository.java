@@ -12,7 +12,7 @@ import java.util.List;
 /**
  * Created By: Prashant Chaubey
  * Created On: 26-10-2019 01:50
- * Purpose: TODO:
+ * Purpose: Repository for User entity.
  **/
 @Repository
 public interface UserRepository extends PagingAndSortingRepository<User, Long> {

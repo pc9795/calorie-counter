@@ -1,6 +1,5 @@
 package service.calorie.service;
 
-import com.fasterxml.jackson.core.JsonFactory;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
@@ -21,9 +20,9 @@ public class NutritionixService {
 
     @Value("${url}")
     private String url;
-    @Value("${appId")
+    @Value("${app_id}")
     private String appId;
-    @Value("${appKey}")
+    @Value("${app_key}")
     private String appKey;
     private final RestTemplate restTemplate;
 
