@@ -1,7 +1,6 @@
 package service.calorie.api.v1;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.web.bind.annotation.*;
 import service.calorie.beans.ApiUserPrincipal;
@@ -89,4 +88,5 @@ public class UserResource {
         }
         userRepository.delete(user);
     }
+
 }
