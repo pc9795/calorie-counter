@@ -13,6 +13,7 @@ import org.springframework.lang.NonNull;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
+import javax.validation.constraints.PositiveOrZero;
 import java.time.LocalDate;
 import java.time.LocalTime;
 
@@ -42,6 +43,7 @@ public class Meal {
     @NotNull
     private String text;
 
+    @PositiveOrZero
     private int calories;
     private boolean lessThanExpected;
 

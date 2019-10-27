@@ -8,6 +8,7 @@ import service.calorie.exceptions.ForbiddenResourceException;
 import service.calorie.exceptions.ResourceNotExistException;
 import service.calorie.repositories.MealRepository;
 import service.calorie.repositories.UserRepository;
+import service.calorie.service.NutritionixService;
 import service.calorie.util.Constants;
 
 import javax.validation.Valid;
@@ -24,11 +25,14 @@ public class MealResource {
 
     private final MealRepository mealRepository;
     private final UserRepository userRepository;
+    private final NutritionixService nutritionixService;
 
     @Autowired
-    public MealResource(MealRepository mealRepository, UserRepository userRepository) {
+    public MealResource(MealRepository mealRepository, UserRepository userRepository,
+                        NutritionixService nutritionixService) {
         this.mealRepository = mealRepository;
         this.userRepository = userRepository;
+        this.nutritionixService = nutritionixService;
     }
 
     @GetMapping
@@ -54,6 +58,9 @@ public class MealResource {
 
     @PostMapping
     public Meal addMeal(@Valid Meal meal, ApiUserPrincipal principal) {
+        if (meal.getCalories() == 0) {
+            meal.setCalories(nutritionixService.fetchCaloriesFromText(meal.getText()));
+        }
         principal.getUser().addMeal(meal);
         userRepository.save(principal.getUser());
         return meal;
@@ -70,6 +77,9 @@ public class MealResource {
         }
         if (meal.getUser().getId() != principal.getUser().getId()) {
             throw new ForbiddenResourceException();
+        }
+        if (meal.getCalories() == 0) {
+            meal.setCalories(nutritionixService.fetchCaloriesFromText(meal.getText()));
         }
         dbMeal.setCalories(meal.getCalories());
         dbMeal.setDate(meal.getDate());

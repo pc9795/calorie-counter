@@ -71,6 +71,7 @@ public class UserResource {
         dbUser.setRoles(user.getRoles());
         //todo user manager has access to meals.
         //todo check orphans are deleted or not.
+        //todo what happens when calories are zero. Does api fetch logic work here.
         dbUser.setMeals(user.getMeals());
         return userRepository.save(dbUser);
     }
