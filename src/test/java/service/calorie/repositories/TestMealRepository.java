@@ -16,7 +16,7 @@ import org.springframework.test.context.junit4.SpringRunner;
 import service.calorie.entities.Meal;
 import service.calorie.entities.User;
 import service.calorie.entities.UserSettings;
-import service.calorie.exceptions.InvalidSearchQueryException;
+import service.calorie.exceptions.InvalidDataException;
 import service.calorie.utils.ApiSpecification;
 import service.calorie.utils.SearchCriteria;
 
@@ -112,7 +112,7 @@ public class TestMealRepository {
     }
 
     @Test
-    public void testFindAllWithUser() {
+    public void testFindAllWithUser() throws InvalidDataException {
         List<Meal> dbMeals = repository.findAll(new ApiSpecification(
                 new SearchCriteria("user", user, "eq")), Pageable.unpaged()).getContent();
         assert dbMeals.size() == meals.length;
@@ -141,7 +141,7 @@ public class TestMealRepository {
 
 
     @Test
-    public void testFindAllWithUserAndSpec() {
+    public void testFindAllWithUserAndSpec() throws InvalidDataException {
         ApiSpecification spec1 = new ApiSpecification(new SearchCriteria("user", user, "eq"));
         ApiSpecification spec2 = new ApiSpecification(new SearchCriteria("id", 2, "eq"));
         assert repository.findAll(spec1.and(spec2), Pageable.unpaged()).getContent().size() == 1;
@@ -149,13 +149,13 @@ public class TestMealRepository {
 
 
     @Test(expected = InvalidDataAccessApiUsageException.class)
-    public void testFindAllInvalidSpec() {
+    public void testFindAllInvalidSpec() throws InvalidDataException {
         repository.findAll(new ApiSpecification(new SearchCriteria("xxx", "temp_value", "eq")),
                 Pageable.unpaged());
     }
 
     @Test
-    public void testFindAll() throws InvalidSearchQueryException {
+    public void testFindAll() throws InvalidDataException {
         List<Meal> meals = repository.findAll(null, Pageable.unpaged()).getContent();
         assert meals.size() == 5;
 
@@ -239,7 +239,7 @@ public class TestMealRepository {
     }
 
     @Test
-    public void testUpdateLessThanExpectedByUser() {
+    public void testUpdateLessThanExpectedByUser() throws InvalidDataException {
         repository.updateLessThanExpectedByUser(1, true);
         assert repository.findAll(new ApiSpecification(new SearchCriteria("lessThanExpected", true,
                 "eq")), Pageable.unpaged()).getContent().size() == meals.length;

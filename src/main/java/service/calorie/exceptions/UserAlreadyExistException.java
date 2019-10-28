@@ -6,4 +6,10 @@ package service.calorie.exceptions;
  * Purpose: Exception if user already exists in database.
  **/
 public class UserAlreadyExistException extends Exception {
+    public UserAlreadyExistException(String message) {
+        super(message);
+    }
+
+    public UserAlreadyExistException() {
+    }
 }

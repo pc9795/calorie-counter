@@ -47,7 +47,7 @@ public class Meal {
     @PositiveOrZero
     private int calories;
 
-    private boolean lessThanExpected;
+    private boolean lessThanExpected = true;
 
     @JsonIgnore
     @ManyToOne(fetch = FetchType.LAZY)

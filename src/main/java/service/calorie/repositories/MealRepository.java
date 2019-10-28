@@ -20,7 +20,7 @@ public interface MealRepository extends PagingAndSortingRepository<Meal, Long> {
     Meal findById(long id);
 
     @Query("SELECT sum(m.calories) from Meal m where m.user.id=:userId")
-    long sumOfCaloriesByUser(@Param("userId") long userId);
+    Long sumOfCaloriesByUser(@Param("userId") long userId);
 
     @Modifying
     @Query("UPDATE Meal m set m.lessThanExpected=:lessThanExpected where m.user.id=:userId")

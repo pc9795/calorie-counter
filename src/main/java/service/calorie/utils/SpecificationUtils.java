@@ -1,7 +1,7 @@
 package service.calorie.utils;
 
 import org.springframework.data.jpa.domain.Specification;
-import service.calorie.exceptions.InvalidSearchQueryException;
+import service.calorie.exceptions.InvalidDataException;
 
 import java.util.ArrayDeque;
 import java.util.ArrayList;
@@ -16,7 +16,7 @@ import java.util.List;
 public class SpecificationUtils {
     private static List<String> operators = Arrays.asList("gt", "ge", "lt", "le", "eq", "and", "or", "(", ")");
 
-    static SearchOption searchOptionFromStr(String optionStr) throws InvalidSearchQueryException {
+    static SearchOption searchOptionFromStr(String optionStr) throws InvalidDataException {
         switch (optionStr) {
             case "eq":
                 return SearchOption.EQUALS;
@@ -33,10 +33,10 @@ public class SpecificationUtils {
             case "or":
                 return SearchOption.OR;
         }
-        throw new InvalidSearchQueryException(String.format("Not a valid search option %s", optionStr));
+        throw new InvalidDataException(String.format("Not a valid search option %s", optionStr));
     }
 
-    private static List<String> infixToPostFix(String query) throws InvalidSearchQueryException {
+    private static List<String> infixToPostFix(String query) throws InvalidDataException {
         SearchQueryTokenizer tokenizer = new SearchQueryTokenizer(query.toLowerCase());
         List<String> result = new ArrayList<>();
         ArrayDeque<String> stack = new ArrayDeque<>();
@@ -52,7 +52,7 @@ public class SpecificationUtils {
                     result.add(stack.pop());
                 }
                 if (!stack.isEmpty() && !stack.peek().equals("(")) {
-                    throw new InvalidSearchQueryException();
+                    throw new InvalidDataException("Unbalanced braces");
                 } else {
                     stack.pop();
                 }
@@ -66,21 +66,21 @@ public class SpecificationUtils {
         }
         while (!stack.isEmpty()) {
             if (stack.peek().equals("(")) {
-                throw new InvalidSearchQueryException("Unbalanced parenthesis found");
+                throw new InvalidDataException("Unbalanced parenthesis found");
             }
             result.add(stack.pop());
         }
         return result;
     }
 
-    private static <T> Specification<T> buildSpecFromPostfixList(List<String> postfix) throws InvalidSearchQueryException {
+    private static <T> Specification<T> buildSpecFromPostfixList(List<String> postfix) throws InvalidDataException {
         ArrayDeque<Specification<T>> stack = new ArrayDeque<>();
         int size = postfix.size();
 
         for (int i = 0; i < size; i++) {
             if (!isOperator(postfix.get(i))) {
                 if (size - i < 3) {
-                    throw new InvalidSearchQueryException();
+                    throw new InvalidDataException("Invalid search query");
                 }
                 stack.push(new ApiSpecification<>(
                         new SearchCriteria(postfix.get(i), postfix.get(i + 1), postfix.get(i + 2))));
@@ -88,10 +88,10 @@ public class SpecificationUtils {
             } else {
                 SearchOption option = searchOptionFromStr(postfix.get(i));
                 if (option != SearchOption.AND && option != SearchOption.OR) {
-                    throw new InvalidSearchQueryException();
+                    throw new InvalidDataException("Found options other than AND and OR");
                 }
                 if (stack.size() < 2) {
-                    throw new InvalidSearchQueryException();
+                    throw new InvalidDataException("Invalid search query");
                 }
                 Specification<T> first = stack.pop();
                 Specification<T> second = stack.pop();
@@ -110,7 +110,7 @@ public class SpecificationUtils {
         return operators.contains(op);
     }
 
-    private static int precedence(String op) throws InvalidSearchQueryException {
+    private static int precedence(String op) throws InvalidDataException {
         if (op.equals("(")) {
             return 0;
         }
@@ -128,10 +128,10 @@ public class SpecificationUtils {
             case OR:
                 return 1;
         }
-        throw new InvalidSearchQueryException(String.format("Can't get precedence of: %s", op));
+        throw new InvalidDataException(String.format("Can't get precedence of: %s", op));
     }
 
-    public static <T> Specification<T> getSpecFromQuery(String query) throws InvalidSearchQueryException {
+    public static <T> Specification<T> getSpecFromQuery(String query) throws InvalidDataException {
         List<String> postFixedQuery = infixToPostFix(query);
         return buildSpecFromPostfixList(postFixedQuery);
     }

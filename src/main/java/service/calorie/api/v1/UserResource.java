@@ -7,8 +7,8 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 import service.calorie.entities.User;
 import service.calorie.exceptions.InvalidDataException;
-import service.calorie.exceptions.InvalidSearchQueryException;
 import service.calorie.exceptions.ResourceNotExistException;
+import service.calorie.exceptions.UserAlreadyExistException;
 import service.calorie.repositories.UserRepository;
 import service.calorie.utils.Constants;
 import service.calorie.utils.SpecificationUtils;
@@ -47,18 +47,10 @@ public class UserResource {
     @GetMapping
     public List<User> getUsers(Pageable pageable, @RequestParam(value = "search", required = false) String search)
             throws InvalidDataException {
-        if (search == null) {
-            return userRepository.findAll(pageable).getContent();
-        }
-        try {
-            Specification<User> spec = SpecificationUtils.getSpecFromQuery(search);
-            return userRepository.findAll(spec, pageable).getContent();
-
-        } catch (InvalidSearchQueryException e) {
-            throw new InvalidDataException(String.format("Invalid search query: %s", search));
-        }
-
+        Specification<User> spec = search == null ? null : SpecificationUtils.getSpecFromQuery(search);
+        return userRepository.findAll(spec, pageable).getContent();
     }
+
 
     /**
      * Read a single user.
@@ -85,10 +77,13 @@ public class UserResource {
      * @throws InvalidDataException
      */
     @PostMapping
-    public User addUser(@Valid @RequestBody User user, Principal principal) throws InvalidDataException {
+    public User addUser(@Valid @RequestBody User user, Principal principal) throws InvalidDataException, UserAlreadyExistException {
         //Non admin can't add admin account.
         if (!Utils.isPrincipalAdmin(principal) && user.isAdmin()) {
             throw new InvalidDataException("Non admin user can't add an admin user");
+        }
+        if (userRepository.findUserByUsername(user.getUsername()) != null) {
+            throw new UserAlreadyExistException(String.format("User wih username: %s already exists", user.getUsername()));
         }
         user.setPassword(passwordEncoder.encode(user.getPassword()));
         return userRepository.save(user);
@@ -105,7 +100,7 @@ public class UserResource {
      */
     @PutMapping("/{user_id}")
     public User updateUser(@RequestBody @Valid User user, @PathVariable("user_id") long userId,
-                           Principal principal) throws InvalidDataException {
+                           Principal principal) throws InvalidDataException, UserAlreadyExistException {
         //Non admin can't update to admin role.
         if (!Utils.isPrincipalAdmin(principal) && user.isAdmin()) {
             throw new InvalidDataException("Non admin user can't update to an admin user");
@@ -116,6 +111,11 @@ public class UserResource {
         User dbUser = userRepository.findById(userId);
         if (dbUser == null) {
             return userRepository.save(user);
+        }
+
+        if (userRepository.findUserByUsername(user.getUsername()) != null) {
+            throw new UserAlreadyExistException(String.format("User wih username: %s already exists",
+                    user.getUsername()));
         }
 
         dbUser.setUsername(user.getUsername());

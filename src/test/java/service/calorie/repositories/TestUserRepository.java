@@ -15,6 +15,7 @@ import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.junit4.SpringRunner;
 import service.calorie.entities.User;
 import service.calorie.entities.UserSettings;
+import service.calorie.exceptions.InvalidDataException;
 import service.calorie.utils.ApiSpecification;
 import service.calorie.utils.SearchCriteria;
 
@@ -108,13 +109,13 @@ public class TestUserRepository {
     }
 
     @Test(expected = InvalidDataAccessApiUsageException.class)
-    public void testFindallInvalidSpec() {
+    public void testFindallInvalidSpec() throws InvalidDataException {
         repository.findAll(new ApiSpecification<>(new SearchCriteria("xxx", "temp_value", "eq")),
                 Pageable.unpaged());
     }
 
     @Test
-    public void testFindAll() {
+    public void testFindAll() throws InvalidDataException {
         List<User> users = repository.findAll(null, Pageable.unpaged()).getContent();
         assert users.size() == 5;
 

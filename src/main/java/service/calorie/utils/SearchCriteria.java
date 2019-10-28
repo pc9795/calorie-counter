@@ -1,5 +1,7 @@
 package service.calorie.utils;
 
+import service.calorie.exceptions.InvalidDataException;
+
 /**
  * Created By: Prashant Chaubey
  * Created On: 27-10-2019 15:59
@@ -10,7 +12,7 @@ public class SearchCriteria {
     private SearchOption operation;
     private Object value;
 
-    public SearchCriteria(String key, Object value, String operation) {
+    public SearchCriteria(String key, Object value, String operation) throws InvalidDataException {
         this.key = key;
         this.operation = SpecificationUtils.searchOptionFromStr(operation);
         this.value = value;
