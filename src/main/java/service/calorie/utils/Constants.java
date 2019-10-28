@@ -18,6 +18,7 @@ public final class Constants {
         public static final String BAD_CREDENTIALS = "Bad Credentials";
         public static final String UNAUTHORIZED = "Unauthorized";
         public static final String FORBIDDEN_RESOURCE = "Forbidden Resource";
+        public static final String INTERNAL_SERVER_ERROR = "Something bad happened";
     }
 
     /**

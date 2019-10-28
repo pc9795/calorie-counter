@@ -47,7 +47,7 @@ public class UserResource {
     @GetMapping
     public List<User> getUsers(Pageable pageable, @RequestParam(value = "search", required = false) String search)
             throws InvalidDataException {
-        Specification<User> spec = search == null ? null : SpecificationUtils.getSpecFromQuery(search);
+        Specification<User> spec = search == null ? null : SpecificationUtils.getSpecFromQuery(search, SpecificationUtils::userAttributeConverter);
         return userRepository.findAll(spec, pageable).getContent();
     }
 

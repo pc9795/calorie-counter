@@ -56,7 +56,7 @@ public class AuthController {
         //Check for any violations in constraints.
         Set<ConstraintViolation<User>> violations = validator.validate(user);
         if (!violations.isEmpty()) {
-            throw new ValidationException(Utils.joinCollection(violations));
+            throw new ValidationException(Utils.joinCollection(violations, ","));
         }
 
         user.setUserSettings(new UserSettings(0));

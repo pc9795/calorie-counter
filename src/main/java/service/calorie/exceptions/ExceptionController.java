@@ -99,4 +99,9 @@ public class ExceptionController {
         createJSONErrorResponse(HttpServletResponse.SC_FORBIDDEN, Constants.ErrorMsg.FORBIDDEN_RESOURCE, response);
     }
 
+    @ExceptionHandler(Exception.class)
+    public void handleAll(Exception exc, HttpServletResponse response) throws IOException {
+        createJSONErrorResponse(HttpServletResponse.SC_INTERNAL_SERVER_ERROR,
+                Constants.ErrorMsg.INTERNAL_SERVER_ERROR, response);
+    }
 }

@@ -6,6 +6,7 @@ package service.calorie.exceptions;
  * Purpose: Exception if passed data is not valid.
  **/
 public class InvalidDataException extends Exception {
+
     public InvalidDataException(String message) {
         super(message);
     }

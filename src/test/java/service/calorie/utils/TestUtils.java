@@ -12,6 +12,10 @@ import org.springframework.http.MediaType;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Created By: Prashant Chaubey
@@ -39,7 +43,23 @@ public class TestUtils {
         Mockito.verify(mockResponse, Mockito.times(1)).
                 setContentType(MediaType.APPLICATION_JSON_UTF8_VALUE);
         Mockito.verify(mockResponse, Mockito.times(1)).setStatus(404);
-        Mockito.verify(mockPrintWriter, Mockito.times(1));
+        Mockito.verify(mockPrintWriter, Mockito.times(1)).write(Mockito.anyString());
+
+    }
+
+    @Test
+    public void testJoinCollection() {
+        List<Integer> list = new ArrayList<>();
+        // Empty
+        assert Utils.joinCollection(list, ",").isEmpty();
+
+        list.add(1);
+        // 1 element
+        assert Utils.joinCollection(list, ",").equals("1");
+
+        list.add(2);
+        list.add(3);
+        assert Utils.joinCollection(list, ",").equals("1, 2, 3");
 
     }
 }

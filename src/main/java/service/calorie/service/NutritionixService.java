@@ -34,6 +34,12 @@ public class NutritionixService {
         this.restTemplate = restTemplate;
     }
 
+    /**
+     * Use the Nutritionix service to query for calories of a textual representation of food items.
+     *
+     * @param text
+     * @return
+     */
     public int fetchCaloriesFromText(String text) {
         try {
             // Setting headers.
@@ -47,7 +53,8 @@ public class NutritionixService {
             payload.put("query", text);
 
             // Getting the response.
-            String response = restTemplate.postForObject(url, new HttpEntity<>(payload.toString(), headers), String.class);
+            String response = restTemplate.postForObject(url, new HttpEntity<>(payload.toString(), headers),
+                    String.class);
             // Converting to JSON.
             ObjectNode root = new ObjectMapper().readValue(response, ObjectNode.class);
 
@@ -59,6 +66,7 @@ public class NutritionixService {
             return totalCalories;
 
         } catch (Exception e) {
+            // Returning 0 until no additional requirement.
             e.printStackTrace();
             return 0;
         }

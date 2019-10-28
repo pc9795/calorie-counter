@@ -3,6 +3,8 @@ package service.calorie.utils;
 import org.springframework.data.jpa.domain.Specification;
 import service.calorie.exceptions.InvalidDataException;
 
+import java.time.LocalDate;
+import java.time.LocalTime;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -11,11 +13,16 @@ import java.util.List;
 /**
  * Created By: Prashant Chaubey
  * Created On: 27-10-2019 15:47
- * Purpose: TODO:
+ * Purpose: Create JPA specification from the query.
  **/
 public class SpecificationUtils {
-    private static List<String> operators = Arrays.asList("gt", "ge", "lt", "le", "eq", "and", "or", "(", ")");
-
+    /**
+     * Convert the search option representation to a uniform representation.
+     *
+     * @param optionStr
+     * @return
+     * @throws InvalidDataException
+     */
     static SearchOption searchOptionFromStr(String optionStr) throws InvalidDataException {
         switch (optionStr) {
             case "eq":
@@ -36,6 +43,13 @@ public class SpecificationUtils {
         throw new InvalidDataException(String.format("Not a valid search option %s", optionStr));
     }
 
+    /**
+     * Convert a infix search representation to postfix.
+     *
+     * @param query
+     * @return
+     * @throws InvalidDataException
+     */
     private static List<String> infixToPostFix(String query) throws InvalidDataException {
         SearchQueryTokenizer tokenizer = new SearchQueryTokenizer(query.toLowerCase());
         List<String> result = new ArrayList<>();
@@ -43,7 +57,7 @@ public class SpecificationUtils {
         String token = tokenizer.nextToken();
 
         while (token != null) {
-            if (!isOperator(token)) {
+            if (isOperand(token)) {
                 result.add(token);
             } else if (token.equals("(")) {
                 stack.push(token);
@@ -51,11 +65,10 @@ public class SpecificationUtils {
                 while (!stack.isEmpty() && !stack.peek().equals("(")) {
                     result.add(stack.pop());
                 }
-                if (!stack.isEmpty() && !stack.peek().equals("(")) {
+                if (stack.isEmpty()) {
                     throw new InvalidDataException("Unbalanced braces");
-                } else {
-                    stack.pop();
                 }
+                stack.pop();
             } else {
                 while (!stack.isEmpty() && precedence(token) <= precedence(stack.peek())) {
                     result.add(stack.pop());
@@ -66,39 +79,58 @@ public class SpecificationUtils {
         }
         while (!stack.isEmpty()) {
             if (stack.peek().equals("(")) {
-                throw new InvalidDataException("Unbalanced parenthesis found");
+                throw new InvalidDataException("Unbalanced braces");
             }
             result.add(stack.pop());
         }
         return result;
     }
 
-    private static <T> Specification<T> buildSpecFromPostfixList(List<String> postfix) throws InvalidDataException {
+    /**
+     * Build specification from the postfix notation of queries.
+     *
+     * @param postfix
+     * @param <T>
+     * @return
+     * @throws InvalidDataException
+     */
+    private static <T> Specification<T> buildSpecFromPostfixList(List<String> postfix,
+                                                                 SpecificationAttrConverter converter)
+            throws InvalidDataException {
         ArrayDeque<Specification<T>> stack = new ArrayDeque<>();
         int size = postfix.size();
 
         for (int i = 0; i < size; i++) {
-            if (!isOperator(postfix.get(i))) {
+            if (isOperand(postfix.get(i))) {
+                // The query will always has the basic entity as "a op b" which will be joined by "and" and "or"
+                // and there priority configured by braces.
+                // So during postfix conversion the "a op b" will be converted to "a b op". Here while converting
+                // to specification we will treat it as a single entity and extract it together. These 3 things will
+                // be taken out together and expected to be in the form of "a b op" else the query is wrong.
                 if (size - i < 3) {
                     throw new InvalidDataException("Invalid search query");
                 }
                 stack.push(new ApiSpecification<>(
-                        new SearchCriteria(postfix.get(i), postfix.get(i + 1), postfix.get(i + 2))));
+                        new SearchCriteria(postfix.get(i), postfix.get(i + 1), postfix.get(i + 2)), converter));
                 i += 2;
             } else {
+                // Because we extract a unit "a op b" together and braces are already removed in postfix processing
+                // So only thing which is left for consideration is "and" and "or". If any thing else is found then
+                // the query is corrupt.
                 SearchOption option = searchOptionFromStr(postfix.get(i));
                 if (option != SearchOption.AND && option != SearchOption.OR) {
-                    throw new InvalidDataException("Found options other than AND and OR");
+                    throw new InvalidDataException("Found options other than AND and OR after Infix conversion");
                 }
+                //There should be 2 units of specification for processing.
                 if (stack.size() < 2) {
                     throw new InvalidDataException("Invalid search query");
                 }
                 Specification<T> first = stack.pop();
                 Specification<T> second = stack.pop();
                 if (option == SearchOption.OR) {
-                    stack.push(first.and(second));
-                } else {
                     stack.push(first.or(second));
+                } else {
+                    stack.push(first.and(second));
                 }
             }
         }
@@ -106,10 +138,26 @@ public class SpecificationUtils {
 
     }
 
-    private static boolean isOperator(String op) {
-        return operators.contains(op);
+    // List of all reserved words which should not be taken as operands.
+    private static List<String> reserved = Arrays.asList("gt", "ge", "lt", "le", "eq", "and", "or", "(", ")");
+
+    /**
+     * Check whether a token is operand or not.
+     *
+     * @param op
+     * @return
+     */
+    private static boolean isOperand(String op) {
+        return !reserved.contains(op);
     }
 
+    /**
+     * Precdence of operators which will help in infix to postfix conversion.
+     *
+     * @param op
+     * @return
+     * @throws InvalidDataException
+     */
     private static int precedence(String op) throws InvalidDataException {
         if (op.equals("(")) {
             return 0;
@@ -131,19 +179,35 @@ public class SpecificationUtils {
         throw new InvalidDataException(String.format("Can't get precedence of: %s", op));
     }
 
-    public static <T> Specification<T> getSpecFromQuery(String query) throws InvalidDataException {
+    /**
+     * Method facing outside world to combine the working of this class.
+     *
+     * @param query
+     * @return
+     * @throws InvalidDataException
+     */
+    public static Specification getSpecFromQuery(String query, SpecificationAttrConverter converter)
+            throws InvalidDataException {
         List<String> postFixedQuery = infixToPostFix(query);
-        return buildSpecFromPostfixList(postFixedQuery);
+        return buildSpecFromPostfixList(postFixedQuery, converter);
     }
 
-    private static class SearchQueryTokenizer {
+    /**
+     * Class to tokenize a search query.
+     */
+    public static class SearchQueryTokenizer {
         private final String query;
         private int counter = 0;
 
         SearchQueryTokenizer(String query) {
-            this.query = query;
+            this.query = query.trim();
         }
 
+        /**
+         * Get the next token from the string.
+         *
+         * @return
+         */
         String nextToken() {
             //Remove spaces;
             for (; counter < query.length(); counter++) {
@@ -154,13 +218,16 @@ public class SpecificationUtils {
             if (counter == query.length()) {
                 return null;
             }
+
+            //Send braces as tokens.
             char c = query.charAt(counter);
             if (c == '(' || c == ')') {
                 counter++;
                 return "" + c;
             }
-            int first = counter;
+
             //Retrieve next token. We assume everything is separated by space.
+            int first = counter;
             for (; counter < query.length(); counter++) {
                 c = query.charAt(counter);
                 if (c == ' ' || c == ')') {
@@ -169,5 +236,43 @@ public class SpecificationUtils {
             }
             return null;
         }
+    }
+
+    /**
+     * Attribute converter for User entity. We know that the value will be string.
+     *
+     * @param key
+     * @param value
+     * @return
+     */
+    public static Object userAttributeConverter(String key, Object value) {
+        switch (key) {
+            case "username":
+                return value;
+        }
+        throw new RuntimeException(String.format("%s is not mapped", key));
+    }
+
+    /**
+     * Attribute converter for Meal entity. We know that the value will be string.
+     *
+     * @param key
+     * @param value
+     * @return
+     */
+    public static Object mealAttributeConverter(String key, Object value) {
+        switch (key) {
+            case "date":
+                return LocalDate.parse(value.toString());
+            case "time":
+                return LocalTime.parse(value.toString());
+            case "text":
+                return value;
+            case "calories":
+                return Integer.parseInt(value.toString());
+            case "lessThanExpected":
+                return Boolean.parseBoolean(value.toString());
+        }
+        throw new RuntimeException(String.format("%s is not mapped", key));
     }
 }

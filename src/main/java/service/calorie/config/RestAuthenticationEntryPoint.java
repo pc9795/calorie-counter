@@ -14,7 +14,7 @@ import java.io.IOException;
 /**
  * Created By: Prashant Chaubey
  * Created On: 26-10-2019 02:51
- * Purpose: TODO:
+ * Purpose: Custom implementation for authentication failures.
  **/
 @Component
 public class RestAuthenticationEntryPoint implements AuthenticationEntryPoint {

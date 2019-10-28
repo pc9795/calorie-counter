@@ -17,7 +17,7 @@ import java.util.Iterator;
 /**
  * Created By: Prashant Chaubey
  * Created On: 26-10-2019 12:18
- * Purpose: TODO:
+ * Purpose: Utility methods for the project.
  **/
 public final class Utils {
     private Utils() {
@@ -47,7 +47,14 @@ public final class Utils {
         response.getWriter().write(Utils.createErrorJSON(errorCode, errorMessage));
     }
 
-    public static String joinCollection(Collection collection) {
+    /**
+     * Join a collection with the given delimeter.
+     *
+     * @param collection
+     * @param delimeter
+     * @return joined string representation of collection.
+     */
+    public static String joinCollection(Collection collection, String delimeter) {
         if (collection.size() == 0) {
             return "";
         }
@@ -56,12 +63,18 @@ public final class Utils {
         StringBuilder sb = new StringBuilder();
         Iterator iterator = collection.iterator();
         while (i++ < size - 1) {
-            sb.append(iterator.next()).append(", ");
+            sb.append(iterator.next()).append(delimeter).append(" ");
         }
         sb.append(iterator.next());
         return sb.toString();
     }
 
+    /**
+     * Check the principal object is having a Admin role or not.
+     *
+     * @param principal
+     * @return
+     */
     public static boolean isPrincipalAdmin(Principal principal) {
         UserDetails userDetails = (UserDetails) ((UsernamePasswordAuthenticationToken) principal).getPrincipal();
 
