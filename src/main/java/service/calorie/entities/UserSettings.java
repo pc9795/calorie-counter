@@ -13,6 +13,13 @@ public class UserSettings {
     @NotNull
     private int expCaloriesPerDay;
 
+    public UserSettings() {
+    }
+
+    public UserSettings(int expCaloriesPerDay) {
+        this.expCaloriesPerDay = expCaloriesPerDay;
+    }
+
     public int getExpCaloriesPerDay() {
         return expCaloriesPerDay;
     }

@@ -1,11 +1,18 @@
-package service.calorie.util;
+package service.calorie.utils;
 
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import org.springframework.http.MediaType;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
+import service.calorie.entities.UserRole;
 
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.security.Principal;
+import java.util.Collection;
+import java.util.Iterator;
 
 /**
  * Created By: Prashant Chaubey
@@ -38,5 +45,31 @@ public final class Utils {
         response.setContentType(MediaType.APPLICATION_JSON_UTF8_VALUE);
         response.setStatus(errorCode);
         response.getWriter().write(Utils.createErrorJSON(errorCode, errorMessage));
+    }
+
+    public static String joinCollection(Collection collection) {
+        if (collection.size() == 0) {
+            return "";
+        }
+        int i = 0;
+        int size = collection.size();
+        StringBuilder sb = new StringBuilder();
+        Iterator iterator = collection.iterator();
+        while (i++ < size - 1) {
+            sb.append(iterator.next()).append(", ");
+        }
+        sb.append(iterator.next());
+        return sb.toString();
+    }
+
+    public static boolean isPrincipalAdmin(Principal principal) {
+        UserDetails userDetails = (UserDetails) ((UsernamePasswordAuthenticationToken) principal).getPrincipal();
+
+        for (GrantedAuthority authority : userDetails.getAuthorities()) {
+            if (authority.getAuthority().equals("ROLE_" + UserRole.UserRoleType.ADMIN)) {
+                return true;
+            }
+        }
+        return false;
     }
 }

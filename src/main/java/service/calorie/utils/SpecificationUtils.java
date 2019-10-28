@@ -1,4 +1,4 @@
-package service.calorie.util;
+package service.calorie.utils;
 
 import org.springframework.data.jpa.domain.Specification;
 import service.calorie.exceptions.InvalidSearchQueryException;

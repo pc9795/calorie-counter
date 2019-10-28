@@ -109,41 +109,4 @@ public class Meal {
     public void setUser(User user) {
         this.user = user;
     }
-
-    @Override
-    public String toString() {
-        return "Meal{" +
-                "id=" + id +
-                ", date=" + date +
-                ", time=" + time +
-                ", text='" + text + '\'' +
-                ", calories=" + calories +
-                ", lessThanExpected=" + lessThanExpected +
-                ", user=" + (user == null ? null : user.getId()) +
-                '}';
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-
-        Meal meal = (Meal) o;
-
-        if (calories != meal.calories) return false;
-        if (lessThanExpected != meal.lessThanExpected) return false;
-        if (!date.equals(meal.date)) return false;
-        if (!time.equals(meal.time)) return false;
-        return text.equals(meal.text);
-    }
-
-    @Override
-    public int hashCode() {
-        int result = date.hashCode();
-        result = 31 * result + time.hashCode();
-        result = 31 * result + text.hashCode();
-        result = 31 * result + calories;
-        result = 31 * result + (lessThanExpected ? 1 : 0);
-        return result;
-    }
 }

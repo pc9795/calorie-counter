@@ -11,8 +11,10 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.authentication.logout.HttpStatusReturningLogoutSuccessHandler;
 import service.calorie.entities.UserRole;
 import service.calorie.service.ApiUserDetailsService;
-import service.calorie.util.Constants;
+import service.calorie.utils.Constants;
+import service.calorie.utils.Utils;
 
+import javax.servlet.http.HttpServletResponse;
 import javax.sql.DataSource;
 
 /**
@@ -58,13 +60,19 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     @Override
     protected void configure(HttpSecurity http) throws Exception {
         http.csrf().disable().
-                exceptionHandling().authenticationEntryPoint(entryPoint). // Custom handling on authentication failures
+                exceptionHandling().
+                authenticationEntryPoint(entryPoint). // Custom handling on authentication failures
+                accessDeniedHandler( // Custom handling of access denied.
+                (request, response, accessDeniedException) -> {
+                    Utils.createJSONErrorResponse(HttpServletResponse.SC_FORBIDDEN,
+                            Constants.ErrorMsg.FORBIDDEN_RESOURCE, response);
+                }).
                 and().
                 authorizeRequests(). // Authorization
-                antMatchers(Constants.ApiV1Resource.MEAL).
-                hasAnyRole("ROLE_" + UserRole.UserRoleType.ADMIN, "ROLE_" + UserRole.UserRoleType.REGULAR).
-                antMatchers(Constants.ApiV1Resource.USER).
-                hasAnyRole("ROLE_" + UserRole.UserRoleType.ADMIN + "ROLE_" + UserRole.UserRoleType.USER_MANAGER).
+                antMatchers(Constants.ApiV1Resource.MEAL + "/**").
+                hasAnyRole("" + UserRole.UserRoleType.ADMIN, "" + UserRole.UserRoleType.REGULAR).
+                antMatchers(Constants.ApiV1Resource.USER + "/**").
+                hasAnyRole("" + UserRole.UserRoleType.ADMIN, "" + UserRole.UserRoleType.USER_MANAGER).
                 and().
                 logout().permitAll().
                 logoutSuccessHandler(

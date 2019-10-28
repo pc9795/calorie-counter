@@ -1,4 +1,4 @@
-package service.calorie.util;
+package service.calorie.utils;
 
 import org.springframework.data.jpa.domain.Specification;
 
@@ -10,7 +10,7 @@ import javax.persistence.criteria.Root;
 /**
  * Created By: Prashant Chaubey
  * Created On: 27-10-2019 16:14
- * Purpose: TODO:
+ * Purpose: Custom specification for JPA criteria builder queries.
  **/
 public class ApiSpecification<T> implements Specification<T> {
     private SearchCriteria searchCriteria;
@@ -19,6 +19,14 @@ public class ApiSpecification<T> implements Specification<T> {
         this.searchCriteria = searchCriteria;
     }
 
+    /**
+     * Handling different operators.
+     *
+     * @param root
+     * @param query
+     * @param criteriaBuilder
+     * @return
+     */
     @Override
     public Predicate toPredicate(Root<T> root, CriteriaQuery<?> query, CriteriaBuilder criteriaBuilder) {
         switch (searchCriteria.getOperation()) {

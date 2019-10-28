@@ -3,8 +3,8 @@ package service.calorie.config;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.stereotype.Component;
-import service.calorie.util.Constants;
-import service.calorie.util.Utils;
+import service.calorie.utils.Constants;
+import service.calorie.utils.Utils;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;

@@ -5,6 +5,8 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import org.hibernate.validator.constraints.Length;
 
 import javax.persistence.*;
+import javax.validation.Valid;
+import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 import java.util.ArrayList;
 import java.util.List;
@@ -32,6 +34,9 @@ public class User {
 
     @ElementCollection
     @CollectionTable(name = "user_roles", joinColumns = @JoinColumn(name = "user_id"))
+    @NotNull
+    @NotEmpty
+    @Valid
     private List<UserRole> roles = new ArrayList<>();
 
     // Meal is a week entity so enabling orphan removal.
@@ -40,6 +45,7 @@ public class User {
     private List<Meal> meals = new ArrayList<>();
 
     @Embedded
+    @NotNull
     private UserSettings userSettings;
 
     public User() {
@@ -117,6 +123,7 @@ public class User {
      *
      * @return true if has admin role.
      */
+    @JsonIgnore
     public boolean isAdmin() {
         for (UserRole role : roles) {
             if (role.getType().equals(UserRole.UserRoleType.ADMIN)) {

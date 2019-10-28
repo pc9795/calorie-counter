@@ -1,14 +1,11 @@
-package service.calorie.beans;
+package service.calorie.config;
 
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import service.calorie.entities.User;
-import service.calorie.entities.UserRole;
 
 import java.util.Collection;
-import java.util.LinkedList;
-import java.util.List;
 import java.util.stream.Collectors;
 
 /**
@@ -25,7 +22,7 @@ public class ApiUserPrincipal implements UserDetails {
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return user.getRoles().stream().map(role -> role.getType().toString()).
+        return user.getRoles().stream().map(role -> "ROLE_" + role.getType().toString()).
                 map(SimpleGrantedAuthority::new).collect(Collectors.toList());
     }
 

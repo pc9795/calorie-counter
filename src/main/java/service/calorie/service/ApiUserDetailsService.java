@@ -5,7 +5,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
-import service.calorie.beans.ApiUserPrincipal;
+import service.calorie.config.ApiUserPrincipal;
 import service.calorie.entities.User;
 import service.calorie.repositories.UserRepository;
 

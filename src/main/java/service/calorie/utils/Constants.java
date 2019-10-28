@@ -1,4 +1,4 @@
-package service.calorie.util;
+package service.calorie.utils;
 
 /**
  * Created By: Prashant Chaubey

@@ -17,8 +17,8 @@ import service.calorie.entities.Meal;
 import service.calorie.entities.User;
 import service.calorie.entities.UserSettings;
 import service.calorie.exceptions.InvalidSearchQueryException;
-import service.calorie.util.ApiSpecification;
-import service.calorie.util.SearchCriteria;
+import service.calorie.utils.ApiSpecification;
+import service.calorie.utils.SearchCriteria;
 
 import java.time.LocalDate;
 import java.time.LocalTime;

@@ -15,8 +15,8 @@ import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.junit4.SpringRunner;
 import service.calorie.entities.User;
 import service.calorie.entities.UserSettings;
-import service.calorie.util.ApiSpecification;
-import service.calorie.util.SearchCriteria;
+import service.calorie.utils.ApiSpecification;
+import service.calorie.utils.SearchCriteria;
 
 import java.util.List;
 
