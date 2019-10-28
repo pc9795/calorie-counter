@@ -21,7 +21,8 @@ import java.time.LocalTime;
  * Created On: 25-10-2019 18:06
  * Purpose: Meal entity. Records of meal taken by a user.
  **/
-@Entity(name = "meal_records")
+@Entity
+@Table(name = "meal_records")
 public class Meal {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)

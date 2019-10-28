@@ -24,23 +24,23 @@ public class ApiSpecification<T> implements Specification<T> {
         switch (searchCriteria.getOperation()) {
             case EQUALS:
                 return criteriaBuilder.equal(
-                        root.get(searchCriteria.getKey()), searchCriteria.getValue().toString()
+                        root.get(searchCriteria.getKey()), searchCriteria.getValue()
                 );
             case GREATER_THAN_OR_EQUAL_TO:
                 return criteriaBuilder.greaterThanOrEqualTo(
-                        root.get(searchCriteria.getKey()), searchCriteria.getValue().toString()
+                        root.get(searchCriteria.getKey()), (Comparable) searchCriteria.getValue()
                 );
             case GREATER_THAN:
                 return criteriaBuilder.greaterThan(
-                        root.get(searchCriteria.getKey()), searchCriteria.getValue().toString()
+                        root.get(searchCriteria.getKey()), (Comparable) searchCriteria.getValue()
                 );
             case LESS_THAN_OR_EQUAL_TO:
                 return criteriaBuilder.lessThanOrEqualTo(
-                        root.get(searchCriteria.getKey()), searchCriteria.getValue().toString()
+                        root.get(searchCriteria.getKey()), (Comparable) searchCriteria.getValue()
                 );
             case LESS_THAN:
                 return criteriaBuilder.lessThan(
-                        root.get(searchCriteria.getKey()), searchCriteria.getValue().toString()
+                        root.get(searchCriteria.getKey()), (Comparable) searchCriteria.getValue()
                 );
         }
         return null;

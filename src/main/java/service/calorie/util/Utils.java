@@ -2,9 +2,10 @@ package service.calorie.util;
 
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import org.springframework.http.MediaType;
 
-import java.util.Collection;
-import java.util.Iterator;
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
 
 /**
  * Created By: Prashant Chaubey
@@ -24,19 +25,18 @@ public final class Utils {
         return root.toString();
     }
 
-    //todo check for deletion
-    public static String joinCollection(Collection collection) {
-        if (collection.size() == 0) {
-            return "";
-        }
-        int i = 0;
-        int size = collection.size();
-        StringBuilder sb = new StringBuilder();
-        Iterator iterator = collection.iterator();
-        while (i++ < size - 1) {
-            sb.append(iterator.next()).append(", ");
-        }
-        sb.append(iterator.next());
-        return sb.toString();
+    /**
+     * Utility method to create a JSON response for a particular error code and message.
+     *
+     * @param errorCode
+     * @param errorMessage
+     * @param response
+     * @throws IOException
+     */
+    public static void createJSONErrorResponse(int errorCode, String errorMessage, HttpServletResponse response)
+            throws IOException {
+        response.setContentType(MediaType.APPLICATION_JSON_UTF8_VALUE);
+        response.setStatus(errorCode);
+        response.getWriter().write(Utils.createErrorJSON(errorCode, errorMessage));
     }
 }

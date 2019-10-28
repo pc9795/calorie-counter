@@ -8,7 +8,6 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.PagingAndSortingRepository;
 import org.springframework.data.repository.query.Param;
 import service.calorie.entities.Meal;
-import service.calorie.entities.User;
 
 /**
  * Created By: Prashant Chaubey
@@ -16,16 +15,14 @@ import service.calorie.entities.User;
  * Purpose: Repository for meal entity.
  **/
 public interface MealRepository extends PagingAndSortingRepository<Meal, Long> {
-    Page<Meal> findAllByUser(User user, Pageable pageable);
+    Page<Meal> findAll(Specification specification, Pageable pageable);
 
     Meal findById(long id);
 
-    Page<Meal> findAll(Specification specification, Pageable pageable);
+    @Query("SELECT sum(m.calories) from Meal m where m.user.id=:userId")
+    long sumOfCaloriesByUser(@Param("userId") long userId);
 
-//    @Query("SELECT sum(m.calories) from Meal m where m.user_id=:userId")
-//    long sumOfMealsForUser(@Param("userId") long userId);
-
-//    @Modifying
-//    @Query("UPDATE Meal m set m.lessThanExpected=:lessThanExpected where m.user_id=:userId")
-//    void updateLessThanExpected(@Param("userId") long id, @Param("lessThanExpected") boolean lessThanExpected);
+    @Modifying
+    @Query("UPDATE Meal m set m.lessThanExpected=:lessThanExpected where m.user.id=:userId")
+    void updateLessThanExpectedByUser(@Param("userId") long id, @Param("lessThanExpected") boolean lessThanExpected);
 }

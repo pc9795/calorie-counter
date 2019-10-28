@@ -48,7 +48,8 @@ public class MealResource {
             if (principal.getUser().isAdmin()) {
                 return mealRepository.findAll(pageable).getContent();
             }
-            return mealRepository.findAllByUser(principal.getUser(), pageable).getContent();
+//            return mealRepository.findAllByUser(principal.getUser(), pageable).getContent();
+            return null;
         }
         try {
             Specification<Meal> spec = SpecificationUtils.getSpecFromQuery(search);

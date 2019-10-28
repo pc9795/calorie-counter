@@ -18,7 +18,7 @@ import javax.sql.DataSource;
 /**
  * Created By: Prashant Chaubey
  * Created On: 25-10-2019 19:33
- * Purpose: TODO:
+ * Purpose: Spring security configuration.
  **/
 @Configuration
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
@@ -49,6 +49,12 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 jdbcAuthentication().dataSource(dataSource);
     }
 
+    /**
+     * Configure http url access.
+     *
+     * @param http
+     * @throws Exception
+     */
     @Override
     protected void configure(HttpSecurity http) throws Exception {
         http.csrf().disable().
@@ -61,10 +67,16 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 hasAnyRole("ROLE_" + UserRole.UserRoleType.ADMIN + "ROLE_" + UserRole.UserRoleType.USER_MANAGER).
                 and().
                 logout().permitAll().
-                logoutSuccessHandler(((request, response, authentication) ->
-                        new HttpStatusReturningLogoutSuccessHandler()));
+                logoutSuccessHandler(
+                        ((request, response, authentication) -> new HttpStatusReturningLogoutSuccessHandler())
+                );
     }
 
+    /**
+     * Password encoder to encode user passwords.
+     *
+     * @return
+     */
     @Bean
     public PasswordEncoder encoder() {
         return new BCryptPasswordEncoder();

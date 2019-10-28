@@ -11,6 +11,7 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.test.context.junit4.SpringRunner;
 import service.calorie.entities.User;
 import service.calorie.repositories.UserRepository;
+import service.calorie.service.ApiUserDetailsService;
 
 /**
  * Created By: Prashant Chaubey
@@ -31,6 +32,7 @@ public class TestApiUserDetailsService {
 
     @Autowired
     private ApiUserDetailsService service;
+
     @MockBean
     public UserRepository repository;
 

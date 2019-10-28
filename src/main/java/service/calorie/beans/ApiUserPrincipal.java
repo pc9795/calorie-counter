@@ -9,11 +9,12 @@ import service.calorie.entities.UserRole;
 import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * Created By: Prashant Chaubey
  * Created On: 26-10-2019 02:00
- * Purpose: TODO:
+ * Purpose: Wrapper for the user details which will be managed by Spring security.
  **/
 public class ApiUserPrincipal implements UserDetails {
     private User user;
@@ -24,11 +25,8 @@ public class ApiUserPrincipal implements UserDetails {
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        List<GrantedAuthority> grantedAuthorityList = new LinkedList<>();
-        for (UserRole role : user.getRoles()) {
-            grantedAuthorityList.add(new SimpleGrantedAuthority(role.getType().toString()));
-        }
-        return grantedAuthorityList;
+        return user.getRoles().stream().map(role -> role.getType().toString()).
+                map(SimpleGrantedAuthority::new).collect(Collectors.toList());
     }
 
     @Override

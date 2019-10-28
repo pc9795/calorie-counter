@@ -1,6 +1,7 @@
 package service.calorie.entities;
 
 import javax.persistence.Embeddable;
+import javax.validation.constraints.NotNull;
 
 /**
  * Created By: Prashant Chaubey
@@ -9,6 +10,7 @@ import javax.persistence.Embeddable;
  **/
 @Embeddable
 public class UserSettings {
+    @NotNull
     private int expCaloriesPerDay;
 
     public int getExpCaloriesPerDay() {

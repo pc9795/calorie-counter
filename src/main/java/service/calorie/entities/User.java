@@ -14,7 +14,8 @@ import java.util.List;
  * Created On: 25-10-2019 18:02
  * Purpose: User entity
  **/
-@Entity(name = "users")
+@Entity
+@Table(name = "users")
 public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
@@ -111,6 +112,11 @@ public class User {
         this.userSettings = userSettings;
     }
 
+    /**
+     * Check if user has an admin role.
+     *
+     * @return true if has admin role.
+     */
     public boolean isAdmin() {
         for (UserRole role : roles) {
             if (role.getType().equals(UserRole.UserRoleType.ADMIN)) {
