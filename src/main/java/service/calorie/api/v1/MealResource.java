@@ -75,6 +75,15 @@ public class MealResource {
         return mealRepository.findAll(spec, pageable).getContent();
     }
 
+    /**
+     * Get a single meal.
+     *
+     * @param mealId
+     * @param principal
+     * @return
+     * @throws ResourceNotExistException
+     * @throws ForbiddenResourceException
+     */
     @GetMapping("/{meal_id}")
     public Meal getMeal(@PathVariable("meal_id") long mealId, Principal principal) throws ResourceNotExistException,
             ForbiddenResourceException {
@@ -97,58 +106,94 @@ public class MealResource {
      * @return
      */
     @PostMapping
-    public Meal addMeal(@Valid @RequestBody Meal meal, Principal principal) {
-
+    public Meal addMeal(@RequestBody @Valid Meal meal, Principal principal) {
         if (meal.getCalories() == 0) {
             meal.setCalories(nutritionixService.fetchCaloriesFromText(meal.getText()));
         }
         User user = userRepository.findUserByUsername(principal.getName());
         meal.setUser(user);
-        updateLessThanExpected(user, meal);
+        // It would be true at the beginning.
+        meal.setLessThanExpected(true);
+        updateLessThanExpected(user, meal, meal.getCalories(), true);
         return mealRepository.save(meal);
     }
 
-    private void updateLessThanExpected(User user, Meal meal) {
+    /**
+     * Helper method to update 'lessThanExpected' field of meal according to user's calorie setting.
+     *
+     * @param user
+     * @param meal
+     */
+    private void updateLessThanExpected(User user, Meal meal, int delta, boolean addition) {
         Long sum = mealRepository.sumOfCaloriesByUser(user.getId());
         sum = sum == null ? 0 : sum;
         int caloriePerDay = user.getUserSettings().getExpCaloriesPerDay();
-        if (caloriePerDay == 0 || sum > caloriePerDay) {
+        if (caloriePerDay == 0) {
             return;
         }
-        if (sum + meal.getCalories() > caloriePerDay) {
+        if (addition && sum > caloriePerDay) {
+            meal.setLessThanExpected(false);
+            return;
+        }
+        if (!addition && sum <= caloriePerDay) {
+            return;
+        }
+        if (addition && (sum + delta) > caloriePerDay) {
+            meal.setLessThanExpected(false);
             mealRepository.updateLessThanExpectedByUser(user.getId(), false);
+        }
+        if (!addition && (sum - delta) <= caloriePerDay) {
+            mealRepository.updateLessThanExpectedByUser(user.getId(), true);
         }
     }
 
+    /**
+     * Update a meal.
+     *
+     * @param meal
+     * @param mealId
+     * @param principal
+     * @return
+     * @throws ForbiddenResourceException
+     */
     @PutMapping("/{meal_id}")
-    public Meal updateMeal(Meal meal, @PathVariable("meal_id") long mealId, Principal principal)
+    public Meal updateMeal(@RequestBody @Valid Meal meal, @PathVariable("meal_id") long mealId, Principal principal)
             throws ForbiddenResourceException {
+        if (meal.getCalories() == 0) {
+            meal.setCalories(nutritionixService.fetchCaloriesFromText(meal.getText()));
+        }
+        // It would be true at the beginning.
+        meal.setLessThanExpected(true);
+
         Meal dbMeal = mealRepository.findById(mealId);
         User user = userRepository.findUserByUsername(principal.getName());
 
         if (dbMeal == null) {
             meal.setUser(user);
-            updateLessThanExpected(user, meal);
+            updateLessThanExpected(user, meal, meal.getCalories(), true);
             return mealRepository.save(meal);
         }
-        if (!meal.getUser().getUsername().equals(principal.getName())) {
+        if (!Utils.isPrincipalAdmin(principal) && !dbMeal.getUser().getUsername().equals(principal.getName())) {
             throw new ForbiddenResourceException();
         }
-
-        if (meal.getCalories() == 0) {
-            meal.setCalories(nutritionixService.fetchCaloriesFromText(meal.getText()));
-        }
-
+        int delta = meal.getCalories() - dbMeal.getCalories();
+        boolean addition = delta >= 0;
         dbMeal.setCalories(meal.getCalories());
         dbMeal.setDate(meal.getDate());
         dbMeal.setTime(meal.getTime());
-        dbMeal.setLessThanExpected(meal.isLessThanExpected());
         dbMeal.setText(meal.getText());
-        dbMeal.setUser(user);
-        updateLessThanExpected(user, dbMeal);
+        updateLessThanExpected(dbMeal.getUser(), dbMeal, Math.abs(delta), addition);
         return mealRepository.save(dbMeal);
     }
 
+    /**
+     * Delete a meal.
+     *
+     * @param mealId
+     * @param principal
+     * @throws ResourceNotExistException
+     * @throws ForbiddenResourceException
+     */
     @DeleteMapping("/{meal_id}")
     public void deleteMeal(@PathVariable("meal_id") long mealId, Principal principal)
             throws ResourceNotExistException, ForbiddenResourceException {
@@ -156,21 +201,10 @@ public class MealResource {
         if (meal == null) {
             throw new ResourceNotExistException(String.format("No meal with id:%s", mealId));
         }
-        if (!meal.getUser().getUsername().equals(principal.getName())) {
+        if (!Utils.isPrincipalAdmin(principal) && !meal.getUser().getUsername().equals(principal.getName())) {
             throw new ForbiddenResourceException();
         }
-        User user = userRepository.findUserByUsername(principal.getName());
-
-        Long sum = mealRepository.sumOfCaloriesByUser(user.getId());
-        sum = sum == null ? 0 : sum;
-        int caloriePerDay = user.getUserSettings().getExpCaloriesPerDay();
-        if (caloriePerDay == 0 || sum < caloriePerDay) {
-            mealRepository.delete(meal);
-            return;
-        }
-        if (sum - meal.getCalories() <= caloriePerDay) {
-            mealRepository.updateLessThanExpectedByUser(user.getId(), true);
-        }
+        updateLessThanExpected(meal.getUser(), meal, meal.getCalories(), false);
         mealRepository.delete(meal);
     }
 }

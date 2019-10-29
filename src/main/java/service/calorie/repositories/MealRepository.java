@@ -7,6 +7,7 @@ import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.PagingAndSortingRepository;
 import org.springframework.data.repository.query.Param;
+import org.springframework.transaction.annotation.Transactional;
 import service.calorie.entities.Meal;
 
 /**
@@ -23,6 +24,7 @@ public interface MealRepository extends PagingAndSortingRepository<Meal, Long> {
     Long sumOfCaloriesByUser(@Param("userId") long userId);
 
     @Modifying
+    @Transactional
     @Query("UPDATE Meal m set m.lessThanExpected=:lessThanExpected where m.user.id=:userId")
     void updateLessThanExpectedByUser(@Param("userId") long id, @Param("lessThanExpected") boolean lessThanExpected);
 }

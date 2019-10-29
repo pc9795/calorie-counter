@@ -116,7 +116,8 @@ public class ExceptionController {
     }
 
     @ExceptionHandler(Exception.class)
-    public void handleAll(HttpServletResponse response) throws IOException {
+    public void handleAll(Exception e, HttpServletResponse response) throws IOException {
+        e.printStackTrace();
         createJSONErrorResponse(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, Constants.ErrorMsg.INTERNAL_SERVER_ERROR,
                 response);
     }

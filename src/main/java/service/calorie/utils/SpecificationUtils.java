@@ -52,7 +52,7 @@ public class SpecificationUtils {
      * @throws InvalidDataException
      */
     private static List<String> infixToPostFix(String query) throws InvalidDataException {
-        SearchQueryTokenizer tokenizer = new SearchQueryTokenizer(query.toLowerCase());
+        SearchQueryTokenizer tokenizer = new SearchQueryTokenizer(query);
         List<String> result = new ArrayList<>();
         ArrayDeque<String> stack = new ArrayDeque<>();
         String token = tokenizer.nextToken();
@@ -247,10 +247,17 @@ public class SpecificationUtils {
      * @return
      */
     public static Object userAttributeConverter(String key, Object value) {
-        switch (key) {
-            case "username":
-                return value;
+        try {
+            switch (key) {
+                case "username":
+                    return value;
+            }
+
+        } catch (Exception e) {
+            throw new InvalidSearchAttributeException(String.format("Not able to convert Value: %s of Attribute: %s",
+                    value, key));
         }
+        // When nothing is mapped in switch.
         throw new InvalidSearchAttributeException(String.format("Attribute'%s' is not mapped", key));
     }
 
@@ -262,18 +269,25 @@ public class SpecificationUtils {
      * @return
      */
     public static Object mealAttributeConverter(String key, Object value) {
-        switch (key) {
-            case "date":
-                return LocalDate.parse(value.toString());
-            case "time":
-                return LocalTime.parse(value.toString());
-            case "text":
-                return value;
-            case "calories":
-                return Integer.parseInt(value.toString());
-            case "lessThanExpected":
-                return Boolean.parseBoolean(value.toString());
+        try {
+            switch (key) {
+                case "date":
+                    return LocalDate.parse(value.toString());
+                case "time":
+                    return LocalTime.parse(value.toString());
+                case "text":
+                    return value;
+                case "calories":
+                    return Integer.parseInt(value.toString());
+                case "lessThanExpected":
+                    return Boolean.parseBoolean(value.toString());
+            }
+
+        } catch (Exception e) {
+            throw new InvalidSearchAttributeException(String.format("Not able to convert Value: %s of Attribute: %s",
+                    value, key));
         }
+        // When nothing is mapped in switch.
         throw new InvalidSearchAttributeException(String.format("Attribute '%s' is not mapped", key));
     }
 }

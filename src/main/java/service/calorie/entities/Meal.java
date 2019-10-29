@@ -1,6 +1,7 @@
 package service.calorie.entities;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.fasterxml.jackson.datatype.jsr310.deser.LocalDateDeserializer;
@@ -28,14 +29,14 @@ public class Meal {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private long id;
 
+    @NonNull
     @JsonDeserialize(using = LocalDateDeserializer.class)
     @JsonSerialize(using = LocalDateSerializer.class)
-    @NonNull
     private LocalDate date;
 
+    @NotNull
     @JsonDeserialize(using = LocalTimeDeserializer.class)
     @JsonSerialize(using = LocalTimeSerializer.class)
-    @NotNull
     private LocalTime time;
 
     // We are using Lob so that there is not a limit of 255 characters.
@@ -94,10 +95,12 @@ public class Meal {
         this.calories = calories;
     }
 
+    @JsonProperty
     public boolean isLessThanExpected() {
         return lessThanExpected;
     }
 
+    @JsonIgnore
     public void setLessThanExpected(boolean lessThanExpected) {
         this.lessThanExpected = lessThanExpected;
     }
