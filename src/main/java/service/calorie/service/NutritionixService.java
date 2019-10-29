@@ -59,9 +59,17 @@ public class NutritionixService {
             ObjectNode root = new ObjectMapper().readValue(response, ObjectNode.class);
 
             ArrayNode foods = (ArrayNode) root.get("foods");
+            if (foods == null) {
+                throw new RuntimeException("key: 'foods' not found in the response.");
+            }
+
             int totalCalories = 0;
             for (JsonNode food : foods) {
-                totalCalories += food.get("nf_calories").asInt();
+                JsonNode child = food.get("nf_calories");
+                if (child == null) {
+                    throw new RuntimeException("key: 'nf_calories' not found in the response");
+                }
+                totalCalories += child.asInt();
             }
             return totalCalories;
 

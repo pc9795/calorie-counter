@@ -15,6 +15,7 @@ import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.junit4.SpringRunner;
 import service.calorie.entities.Meal;
 import service.calorie.entities.User;
+import service.calorie.entities.UserRole;
 import service.calorie.entities.UserSettings;
 import service.calorie.exceptions.InvalidDataException;
 import service.calorie.utils.ApiSpecification;
@@ -22,6 +23,7 @@ import service.calorie.utils.SearchCriteria;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -56,6 +58,7 @@ public class TestMealRepository {
         UserSettings userSettings = new UserSettings();
         userSettings.setExpCaloriesPerDay(1200);
         user.setUserSettings(userSettings);
+        user.setRoles(Collections.singletonList(new UserRole(UserRole.UserRoleType.REGULAR)));
 
         meals = new Meal[5];
         meals[0] = new Meal();

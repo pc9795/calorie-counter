@@ -306,7 +306,7 @@ public class TestUserResource {
     public void testReadAllWithUserManager() throws Exception {
 
         Page<User> dummyPage = new PageImpl<>(Collections.singletonList(testUser));
-        BDDMockito.given(repository.findAll(Mockito.any(Pageable.class))).willReturn(dummyPage);
+        BDDMockito.given(repository.findAll(Mockito.any(), Mockito.any(Pageable.class))).willReturn(dummyPage);
 
         mvc.perform(get("/api/v1/users")).
                 andExpect(status().isOk()).

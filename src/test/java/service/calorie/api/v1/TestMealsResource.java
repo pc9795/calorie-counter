@@ -5,14 +5,9 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.BDDMockito;
-import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.Pageable;
 import org.springframework.http.MediaType;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.test.context.support.WithMockUser;
@@ -22,17 +17,14 @@ import org.springframework.test.web.servlet.MockMvc;
 import service.calorie.config.RestAuthenticationEntryPoint;
 import service.calorie.config.SecurityConfig;
 import service.calorie.entities.Meal;
-import service.calorie.entities.User;
 import service.calorie.repositories.MealRepository;
 import service.calorie.service.ApiUserDetailsService;
 
 import javax.sql.DataSource;
 import java.time.LocalDate;
 import java.time.LocalTime;
-import java.util.Collections;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 /**

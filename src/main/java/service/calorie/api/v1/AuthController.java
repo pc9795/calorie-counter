@@ -23,6 +23,7 @@ import javax.validation.ValidationException;
 import javax.validation.Validator;
 import java.util.Collections;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * Created By: Prashant Chaubey
@@ -52,14 +53,17 @@ public class AuthController {
         }
         User user = new User(username.trim(), password.trim());
         user.setRoles(Collections.singletonList(new UserRole(UserRole.UserRoleType.REGULAR)));
+        user.setUserSettings(new UserSettings(0));
 
         //Check for any violations in constraints.
         Set<ConstraintViolation<User>> violations = validator.validate(user);
         if (!violations.isEmpty()) {
-            throw new ValidationException(Utils.joinCollection(violations, ","));
+            throw new ValidationException(Utils.joinCollection(
+                    violations.stream().
+                            map(violation -> violation.getPropertyPath().toString() + " " + violation.getMessage()).
+                            collect(Collectors.toList()), ","));
         }
 
-        user.setUserSettings(new UserSettings(0));
         //Encoding after checking validation
         user.setPassword(passwordEncoder.encode(password));
         return userRepository.save(user);

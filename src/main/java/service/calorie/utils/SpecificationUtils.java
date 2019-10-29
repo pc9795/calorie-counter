@@ -2,6 +2,7 @@ package service.calorie.utils;
 
 import org.springframework.data.jpa.domain.Specification;
 import service.calorie.exceptions.InvalidDataException;
+import service.calorie.exceptions.InvalidSearchAttributeException;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
@@ -231,10 +232,10 @@ public class SpecificationUtils {
             for (; counter < query.length(); counter++) {
                 c = query.charAt(counter);
                 if (c == ' ' || c == ')') {
-                    return query.substring(first, counter);
+                    break;
                 }
             }
-            return null;
+            return query.substring(first, counter);
         }
     }
 
@@ -250,7 +251,7 @@ public class SpecificationUtils {
             case "username":
                 return value;
         }
-        throw new RuntimeException(String.format("%s is not mapped", key));
+        throw new InvalidSearchAttributeException(String.format("Attribute'%s' is not mapped", key));
     }
 
     /**
@@ -273,6 +274,6 @@ public class SpecificationUtils {
             case "lessThanExpected":
                 return Boolean.parseBoolean(value.toString());
         }
-        throw new RuntimeException(String.format("%s is not mapped", key));
+        throw new InvalidSearchAttributeException(String.format("Attribute '%s' is not mapped", key));
     }
 }

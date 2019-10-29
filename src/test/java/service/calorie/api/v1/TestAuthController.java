@@ -83,7 +83,7 @@ public class TestAuthController {
     }
 
     @Test
-    public void testLoginConstraintViolation() throws Exception {
+    public void testRegisterConstraintViolation() throws Exception {
         BDDMockito.given(repository.findUserByUsername("admin")).
                 willReturn(null);
         BDDMockito.when(passwordEncoder.encode("admin")).

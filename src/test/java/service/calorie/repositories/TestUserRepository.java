@@ -1,5 +1,6 @@
 package service.calorie.repositories;
 
+import org.hibernate.usertype.UserType;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -14,11 +15,13 @@ import org.springframework.data.domain.Sort;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.junit4.SpringRunner;
 import service.calorie.entities.User;
+import service.calorie.entities.UserRole;
 import service.calorie.entities.UserSettings;
 import service.calorie.exceptions.InvalidDataException;
 import service.calorie.utils.ApiSpecification;
 import service.calorie.utils.SearchCriteria;
 
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -46,26 +49,31 @@ public class TestUserRepository {
         UserSettings userSettings = new UserSettings();
         userSettings.setExpCaloriesPerDay(1000);
         users[0].setUserSettings(userSettings);
+        users[0].setRoles(Collections.singletonList(new UserRole(UserRole.UserRoleType.REGULAR)));
 
         users[1] = new User("admin2", "admin123");
         UserSettings userSettings2 = new UserSettings();
         userSettings2.setExpCaloriesPerDay(2000);
         users[1].setUserSettings(userSettings2);
+        users[1].setRoles(Collections.singletonList(new UserRole(UserRole.UserRoleType.REGULAR)));
 
         users[2] = new User("admin3", "admin123");
         UserSettings userSettings3 = new UserSettings();
         userSettings3.setExpCaloriesPerDay(3000);
         users[2].setUserSettings(userSettings3);
+        users[2].setRoles(Collections.singletonList(new UserRole(UserRole.UserRoleType.REGULAR)));
 
         users[3] = new User("admin4", "admin123");
         UserSettings userSettings4 = new UserSettings();
         userSettings4.setExpCaloriesPerDay(4000);
         users[3].setUserSettings(userSettings4);
+        users[3].setRoles(Collections.singletonList(new UserRole(UserRole.UserRoleType.REGULAR)));
 
         users[4] = new User("admin5", "admin123");
         UserSettings userSettings5 = new UserSettings();
         userSettings5.setExpCaloriesPerDay(5000);
         users[4].setUserSettings(userSettings5);
+        users[4].setRoles(Collections.singletonList(new UserRole(UserRole.UserRoleType.REGULAR)));
 
         for (User user : users) {
             testEntityManager.persist(user);

@@ -1,5 +1,6 @@
 package service.calorie.exceptions;
 
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
@@ -7,7 +8,9 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.servlet.NoHandlerFoundException;
 import service.calorie.utils.Constants;
 
+import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletResponse;
+import javax.validation.ValidationException;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
@@ -21,6 +24,7 @@ import static service.calorie.utils.Utils.createJSONErrorResponse;
  **/
 @ControllerAdvice
 public class ExceptionController {
+
 
     /**
      * Resource url is not mapped.
@@ -47,19 +51,20 @@ public class ExceptionController {
     }
 
     /**
-     * If data is not in the correct format. Custom validations.
+     * If data is not in the correct format. Custom validations and manual validations done by bean validation api.
      *
      * @param exc
      * @param response
      * @throws IOException
      */
-    @ExceptionHandler(InvalidDataException.class)
+    @ExceptionHandler({InvalidDataException.class, ValidationException.class,
+            ServletException.class, InvalidSearchAttributeException.class})
     public void handleInvalidDataException(Exception exc, HttpServletResponse response) throws IOException {
         createJSONErrorResponse(HttpServletResponse.SC_BAD_REQUEST, exc.getMessage(), response);
     }
 
     /**
-     * Errors caused by bean validation api.
+     * Errors caused by bean validation api while automatic converting json to beans.
      *
      * @param exc
      * @param response
@@ -99,9 +104,20 @@ public class ExceptionController {
         createJSONErrorResponse(HttpServletResponse.SC_FORBIDDEN, Constants.ErrorMsg.FORBIDDEN_RESOURCE, response);
     }
 
+    /**
+     * Bad credentials exception
+     *
+     * @param response
+     * @throws IOException
+     */
+    @ExceptionHandler(BadCredentialsException.class)
+    public void handleBadCredentialsException(HttpServletResponse response) throws IOException {
+        createJSONErrorResponse(HttpServletResponse.SC_BAD_REQUEST, Constants.ErrorMsg.BAD_CREDENTIALS, response);
+    }
+
     @ExceptionHandler(Exception.class)
-    public void handleAll(Exception exc, HttpServletResponse response) throws IOException {
-        createJSONErrorResponse(HttpServletResponse.SC_INTERNAL_SERVER_ERROR,
-                Constants.ErrorMsg.INTERNAL_SERVER_ERROR, response);
+    public void handleAll(HttpServletResponse response) throws IOException {
+        createJSONErrorResponse(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, Constants.ErrorMsg.INTERNAL_SERVER_ERROR,
+                response);
     }
 }
