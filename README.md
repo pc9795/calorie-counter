@@ -2,6 +2,7 @@
 A project to learn about REST
 
 **Abstract**
+
 An API where users can register and signin. They can add meals with the calorie information and if that info is not present nutritionix API to fetch 
 is used to auto-populate calorie details. This API supports different roles, pagination and searching capabilites by available attributes.
 
