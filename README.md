@@ -3,8 +3,7 @@ A project to learn about REST
 
 **Abstract**
 
-An API where users can register and signin. They can add meals with the calorie information and if that info is not present nutritionix API to fetch 
-is used to auto-populate calorie details. This API supports different roles, pagination and searching capabilites by available attributes.
+An API where users can register and signin. They can add meals with the calorie information and if that info is not present nutritionix API  is used to auto-populate calorie details. This API supports different roles, pagination and advanced searching capabilites.
 
 **Techical Learnings**
 * Implemented authentication and authorization using Spring security.
@@ -21,4 +20,4 @@ is used to auto-populate calorie details. This API supports different roles, pag
 * Login/Register is implemented using traditional POST request could be done with JSON.
 * User can apply calorie limit but it is for all entries(BLUNDER). This should be a daily limit. Simple change is query.
 * PUT is creating resource if not present. I found on some places that it is okay but it is a doubt.
-* In user roles there is a loop hole where one role which can manage users could downgrade admin
+* In user roles there is a loop hole where one role which manages users can downgrade admin.
