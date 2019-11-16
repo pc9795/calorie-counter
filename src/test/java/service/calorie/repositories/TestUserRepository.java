@@ -1,6 +1,5 @@
 package service.calorie.repositories;
 
-import org.hibernate.usertype.UserType;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;

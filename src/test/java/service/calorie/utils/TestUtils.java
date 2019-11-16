@@ -2,9 +2,7 @@ package service.calorie.utils;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.Mock;
 import org.mockito.Mockito;
-import org.powermock.api.mockito.PowerMockito;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 import org.springframework.http.MediaType;
@@ -13,14 +11,12 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 /**
  * Created By: Prashant Chaubey
  * Created On: 28-10-2019 03:18
- * Purpose: TODO:
+ * Purpose: Test
  **/
 @RunWith(PowerMockRunner.class)
 @PrepareForTest(Utils.class)
