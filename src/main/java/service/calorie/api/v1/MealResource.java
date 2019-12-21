@@ -59,7 +59,8 @@ public class MealResource {
             throw new ForbiddenResourceException();
         }
 
-        Specification<Meal> spec = search == null ? null : SpecificationUtils.getSpecFromQuery(search, SpecificationUtils::mealAttributeConverter);
+        Specification<Meal> spec = search == null ? null : SpecificationUtils.getSpecFromQuery(search,
+                SpecificationUtils::mealAttributeConverter);
         if (userId != null) {
             User user = userRepository.findById(userId.longValue());
             if (user == null) {
